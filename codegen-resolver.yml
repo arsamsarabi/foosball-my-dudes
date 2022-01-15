@@ -1,0 +1,16 @@
+schema: lib/api/graphql/schema.graphql.ts
+config:
+  declarationKind: "interface"
+  noExport: false
+  enumsAsTypes: true
+generates:
+  ./lib/api/graphql/generated/resolver.d.ts:
+    plugins:
+      - add:
+          content: "import { DeepPartial } from 'utility-types';"
+      - typescript
+      - typescript-resolvers
+    config:
+      defaultMapper: DeepPartial<{T}>
+      useIndexSignature: true
+      noSchemaStitching: true

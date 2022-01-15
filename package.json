@@ -5,18 +5,48 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "gen:schema": "yarn graphql-codegen -c ./codegen.yml",
+    "gen:resolvers": "yarn graphql-codegen -c ./codegen-resolver.yml",
+    "gen:types": "yarn gen:schema && yarn gen:resolvers"
   },
   "dependencies": {
+    "@apollo/client": "^3.5.7",
+    "@auth0/nextjs-auth0": "^1.7.0",
+    "@graphql-codegen/add": "^3.1.1",
+    "@graphql-codegen/typescript-resolvers": "^2.4.3",
+    "@graphql-tools/schema": "^8.3.1",
+    "@mantine/core": "^3.6.0",
+    "@mantine/dates": "^3.6.0",
+    "@mantine/hooks": "^3.6.0",
+    "@mantine/modals": "^3.6.0",
+    "@mantine/next": "^3.6.0",
+    "@mantine/notifications": "^3.6.0",
+    "@mantine/rte": "^3.6.0",
+    "apollo-server-micro": "^3.6.1",
+    "auth0": "^2.37.0",
+    "dayjs": "^1.10.7",
+    "fallguys-names": "^1.1.2",
+    "graphql": "^16.2.0",
+    "graphql-middleware": "6.0.9",
+    "graphql-shield": "^7.5.0",
+    "micro": "^9.3.4",
+    "micro-cors": "^0.1.1",
     "next": "12.0.8",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "react-icons": "^4.3.1",
+    "redis-om": "^0.1.7"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.3.1",
+    "@graphql-codegen/typescript": "^2.4.2",
+    "@types/auth0": "^2.34.10",
     "@types/node": "17.0.8",
     "@types/react": "17.0.38",
     "eslint": "8.6.0",
     "eslint-config-next": "12.0.8",
-    "typescript": "4.5.4"
+    "typescript": "4.5.4",
+    "utility-types": "^3.10.0"
   }
 }

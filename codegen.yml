@@ -1,0 +1,9 @@
+schema: lib/api/graphql/schema.graphql.ts
+config:
+  declarationKind: "interface"
+  noExport: false
+  enumsAsTypes: true
+generates:
+  ./lib/api/graphql/generated/schema.d.ts:
+    plugins:
+      - typescript
