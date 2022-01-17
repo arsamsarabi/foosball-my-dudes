@@ -7,3 +7,6 @@ generates:
   ./lib/api/graphql/generated/schema.d.ts:
     plugins:
       - typescript
+    config:
+      maybeValue: T | undefined
+      inputMaybeValue: T | undefined

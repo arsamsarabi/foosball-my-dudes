@@ -8,39 +8,34 @@ import type { NextPage } from "next";
 import Head from "next/head";
 
 import { Profile, GameHistory, Leaderboard } from "../components";
-import { useMutation } from "@apollo/client";
-import { FETCH_PLAYER_BY_ID, CREATE_PLAYER } from "../gql";
+import { useApolloClient, useQuery } from "@apollo/client";
+import { FETCH_PLAYER_BY_ID } from "../gql";
+import type { Player } from "../types";
 
 const Home: NextPage = () => {
+  const [player, setPlayer] = useState<Player>();
+  const [playerLoading, setPlayerLoading] = useState<boolean>(true);
   const { user, error, isLoading } = useUser();
   const [activeTab, setActiveTab] = useState(0);
-
-  const [fetchPlayer, { loading: fetchLoading, data: fetchData }] =
-    useMutation(FETCH_PLAYER_BY_ID);
-
-  const [createPlayer, { loading: createLoading, data: createData }] =
-    useMutation(CREATE_PLAYER);
+  const client = useApolloClient();
 
   useEffect(() => {
-    async function fetchPlayerData() {
-      if (user) {
-        if (user["https://arsam.dev/player_id"]) {
-          await fetchPlayer({
-            variables: { input: { id: user["https://arsam.dev/player_id"] } },
-          });
-        } else {
-          await createPlayer({
-            variables: {
-              input: { nickname: user.nickname || user.name || user.email },
-            },
-          });
-        }
-      }
+    async function fetchPlayer() {
+      const {
+        data: { fetchPlayer },
+        loading,
+      } = await client.query({
+        query: FETCH_PLAYER_BY_ID,
+      });
+      setPlayer(fetchPlayer);
+      setPlayerLoading(loading);
     }
-    fetchPlayerData();
-  }, [user, fetchPlayer, createPlayer]);
+    if (user) {
+      fetchPlayer();
+    }
+  }, [user, client]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading || playerLoading) return <div>Loading...</div>;
   if (error) return <div>{error.message}</div>;
 
   return (
@@ -51,25 +46,23 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.png" />
       </Head>
 
-      <>
-        <Tabs active={activeTab} onTabChange={setActiveTab}>
-          <Tabs.Tab label="Profile" icon={<CgProfile size={24} />}>
-            <Profile />
-          </Tabs.Tab>
-          <Tabs.Tab
-            label="History"
-            icon={<MdOutlineHistoryToggleOff size={24} />}
-          >
-            <GameHistory />
-          </Tabs.Tab>
-          <Tabs.Tab
-            label="Leaderboard"
-            icon={<AiOutlineOrderedList size={24} />}
-          >
-            <Leaderboard />
-          </Tabs.Tab>
-        </Tabs>
-      </>
+      <Tabs active={activeTab} onTabChange={setActiveTab}>
+        <Tabs.Tab label="Profile" icon={<CgProfile size={24} />}>
+          <Profile
+            player={player}
+            setPlayer={(newPlayer) => setPlayer(newPlayer as Player)}
+          />
+        </Tabs.Tab>
+        <Tabs.Tab
+          label="History"
+          icon={<MdOutlineHistoryToggleOff size={24} />}
+        >
+          <GameHistory />
+        </Tabs.Tab>
+        <Tabs.Tab label="Leaderboard" icon={<AiOutlineOrderedList size={24} />}>
+          <Leaderboard />
+        </Tabs.Tab>
+      </Tabs>
     </>
   );
 };

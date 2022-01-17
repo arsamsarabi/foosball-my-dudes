@@ -9,6 +9,7 @@ import {
   resolvers,
   dataSources,
   typeDefs,
+  connect,
 } from "../../../../lib";
 
 const server = new ApolloServer({
@@ -24,27 +25,30 @@ const server = new ApolloServer({
       accessToken: sess?.accessToken,
       user: sess?.user,
       playerId: sess?.user["https://arsam.dev/player_id"],
+      lastSeen: sess?.user["https://arsam.dev/last_seen"],
     };
   },
 });
 
-export const config = {
-  api: {
-    bodyParser: false, // parse as stream
-  },
-};
+const startServer = server.start();
+const startDB = connect();
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default async (
+export default async function handler(
   req: IncomingMessage,
   res: ServerResponse
-): Promise<void> => {
-  console.info("Incomming request for", req.headers.referer);
+) {
   try {
-    await server.start();
+    await startDB;
+    await startServer;
     await server.createHandler({ path: "/api/graphql" })(req, res);
     console.debug("Response handled for", req.headers.referer);
   } catch (e) {
     console.error("Response not handled for", req.headers.referer, e);
   }
+}
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
 };

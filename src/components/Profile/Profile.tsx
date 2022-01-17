@@ -1,50 +1,76 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useUser } from "@auth0/nextjs-auth0";
-import { Container, Avatar, Space } from "@mantine/core";
+import {
+  Container,
+  Avatar,
+  Space,
+  ActionIcon,
+  Group,
+  useMantineTheme,
+} from "@mantine/core";
 import dayjs from "dayjs";
+import { GrEdit } from "react-icons/gr";
 
 import { Text, Title } from "../Text";
 import { Player } from "../../types";
+import { EditNickname } from "./EditNickname";
 
 type Props = {
   player?: Player;
+  setPlayer: (player: Partial<Player>) => void;
 };
 
-export const Profile: FC<Props> = ({ player }) => {
-  const { user, error, isLoading } = useUser();
-
-  if (isLoading) {
-    return <Text>Loading...</Text>;
-  }
-
-  if (error) {
-    return <Text>Error: {error.message}</Text>;
-  }
-
+export const Profile: FC<Props> = ({ player, setPlayer }) => {
+  const [modalOpne, setModalOpen] = useState(false);
+  const { user } = useUser();
+  const theme = useMantineTheme();
   if (!user) {
     return null;
   }
 
-  // console.log(player);
+  console.log("user", user);
+  console.log("player", player);
+  console.log("theme", theme);
 
-  const { name, nickname, email, picture } = user || {};
+  const { picture } = user || {};
 
-  const displayName = nickname || name || email;
   const lastSeen = user["https://arsam.dev/last_seen"] || "Never";
 
   return (
-    <Container>
-      <Space h={24} />
-      {picture && <Avatar src={picture} alt={String(displayName)} size={124} />}
-      <Space h={24} />
-      <Title order={2}>{displayName}</Title>
-      <Text>{email}</Text>
-      {lastSeen !== "Never" && (
+    <>
+      <Container>
+        <Space h={24} />
+        {picture && <Avatar src={picture} alt={player?.nickname} size={124} />}
+        <Space h={24} />
+        <Group>
+          <Title order={2}>{player?.nickname}</Title>
+          <ActionIcon
+            variant="filled"
+            color={theme.colors.primaryLight[0]}
+            onClick={() => setModalOpen(true)}
+          >
+            <GrEdit />
+          </ActionIcon>
+        </Group>
+        <Text>{player?.tag}</Text>
+        <Space h={12} />
         <Text>
-          Last seen on:{" "}
-          {dayjs(new Date(lastSeen as string)).format("DD-MMM-YYYY HH:MM")}
+          Member since: {dayjs(player?.createdAt).format("DD-MMM-YYYY")}
         </Text>
-      )}
-    </Container>
+        <Space h={4} />
+        {lastSeen !== "Never" && (
+          <Text>
+            Last seen on:{" "}
+            {dayjs(new Date(lastSeen as string)).format("DD-MMM-YYYY HH:MM")}
+          </Text>
+        )}
+      </Container>
+      <EditNickname
+        nickname={String(player?.nickname)}
+        open={modalOpne}
+        toggle={() => setModalOpen(!modalOpne)}
+        setPlayer={setPlayer}
+      />
+    </>
   );
 };

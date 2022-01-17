@@ -11,6 +11,7 @@ import {
   Navbar,
   useMantineTheme,
 } from "@mantine/core";
+import { NotificationsProvider } from "@mantine/notifications";
 import { ApolloProvider, InMemoryCache } from "@apollo/client";
 
 import { Header as AppHeader, Nav } from "../components";
@@ -49,53 +50,55 @@ export default function App(props: AppProps) {
               },
             }}
           >
-            <AppShell
-              navbarOffsetBreakpoint="sm"
-              fixed
-              navbar={
-                <Navbar
-                  padding="md"
-                  hiddenBreakpoint="sm"
-                  hidden={!opened}
-                  width={{ sm: 60, lg: 200 }}
-                >
-                  <Nav />
-                </Navbar>
-              }
-              header={
-                <Header height={70} padding="md">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      height: "100%",
-                    }}
+            <NotificationsProvider position="top-right" zIndex={2077}>
+              <AppShell
+                navbarOffsetBreakpoint="sm"
+                fixed
+                navbar={
+                  <Navbar
+                    padding="md"
+                    hiddenBreakpoint="sm"
+                    hidden={!opened}
+                    width={{ sm: 60, lg: 200 }}
                   >
-                    <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-                      <Burger
-                        opened={opened}
-                        onClick={() => setOpened((o) => !o)}
-                        size="sm"
-                        color={theme.colors.gray[6]}
-                        mr="xl"
-                      />
-                    </MediaQuery>
+                    <Nav />
+                  </Navbar>
+                }
+                header={
+                  <Header height={70} padding="md">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        height: "100%",
+                      }}
+                    >
+                      <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+                        <Burger
+                          opened={opened}
+                          onClick={() => setOpened((o) => !o)}
+                          size="sm"
+                          color={theme.colors.gray[6]}
+                          mr="xl"
+                        />
+                      </MediaQuery>
 
-                    <AppHeader />
-                  </div>
-                </Header>
-              }
-              styles={(theme) => ({
-                main: {
-                  backgroundColor:
-                    theme.colorScheme === "dark"
-                      ? theme.colors.dark[8]
-                      : theme.colors.gray[0],
-                },
-              })}
-            >
-              <Component {...pageProps} />
-            </AppShell>
+                      <AppHeader />
+                    </div>
+                  </Header>
+                }
+                styles={(theme) => ({
+                  main: {
+                    backgroundColor:
+                      theme.colorScheme === "dark"
+                        ? theme.colors.dark[8]
+                        : theme.colors.gray[0],
+                  },
+                })}
+              >
+                <Component {...pageProps} />
+              </AppShell>
+            </NotificationsProvider>
           </MantineProvider>
         </ApolloProvider>
       </UserProvider>

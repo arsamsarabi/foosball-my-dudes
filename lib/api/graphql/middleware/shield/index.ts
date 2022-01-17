@@ -12,11 +12,15 @@ export const permissions = shield(
     Query: {
       "*": deny,
       ping: allow,
+      fetchPlayer: isAuthenticated,
+      fetchGame: isAuthenticated,
+      searchPlayersByTag: isAuthenticated,
     },
     Mutation: {
       "*": deny,
-      fetchPlayerById: isAuthenticated,
       createPlayer: isAuthenticated,
+      updatePlayer: isAuthenticated,
+      createGame: isAuthenticated,
     },
   },
   {

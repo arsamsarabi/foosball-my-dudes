@@ -1,53 +1,52 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Space, Box } from "@mantine/core";
 import { RiLogoutCircleLine } from "react-icons/ri";
 import { VscDebugStart } from "react-icons/vsc";
-import { useMediaQuery } from "@mantine/hooks";
+import { Button, ActionIcon } from "@mantine/core";
+import { FaUserFriends } from "react-icons/fa";
 
 import { routes } from "../../config";
 import { NavLink, IconLink } from "./NavLink";
+import { AddFriendModal } from "../AddFriendModal";
 
 export const Nav: FC = () => {
-  const isSmall = useMediaQuery("(max-width: 1200px)");
-
-  return isSmall ? <MobileNav /> : <DesktopNav />;
-};
-
-const DesktopNav = () => {
+  const [openAddFriendModal, setOpenAddFriendModal] = useState(false);
   return (
-    <NavBox>
-      <NavLink
-        to={routes.profile}
-        color="primary"
-        leftIcon={<VscDebugStart />}
-        variant="outline"
-      >
-        New Game
-      </NavLink>
-      <Space h={8} />
-      <NavLink
-        to={routes.logout}
-        color="red"
-        leftIcon={<RiLogoutCircleLine />}
-        variant="subtle"
-      >
-        Logout
-      </NavLink>
-    </NavBox>
-  );
-};
-
-const MobileNav = () => {
-  return (
-    <NavBox>
-      <IconLink to={routes.profile} color="primary" variant="outline">
-        <VscDebugStart />
-      </IconLink>
-      <Space h={8} />
-      <IconLink to={routes.logout} color="red">
-        <RiLogoutCircleLine />
-      </IconLink>
-    </NavBox>
+    <>
+      <NavBox>
+        <Button
+          onClick={() => {}}
+          color="primary"
+          leftIcon={<VscDebugStart />}
+          variant="outline"
+          fullWidth
+        >
+          New Game
+        </Button>
+        <Space h={16} />
+        <Button
+          onClick={() => setOpenAddFriendModal(true)}
+          color="primary"
+          leftIcon={<FaUserFriends />}
+          variant="outline"
+          fullWidth
+        >
+          Add a friend
+        </Button>
+        <NavLink
+          to={routes.logout}
+          color="red"
+          leftIcon={<RiLogoutCircleLine />}
+          variant="subtle"
+        >
+          Logout
+        </NavLink>
+      </NavBox>
+      <AddFriendModal
+        open={openAddFriendModal}
+        toggle={() => setOpenAddFriendModal(!open)}
+      />
+    </>
   );
 };
 

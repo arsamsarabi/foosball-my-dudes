@@ -2,21 +2,21 @@ import { gql } from "@apollo/client";
 
 import { PLAYER_FIELDS_WITH_FRIENDS } from "./fragments";
 
-export const CREATE_PLAYER = gql`
+export const FETCH_PLAYER_BY_ID = gql`
   ${PLAYER_FIELDS_WITH_FRIENDS}
 
-  mutation createPlayer($input: CreatePlayerInput!) {
-    createPlayer(input: $input) {
+  query fetchPlayer {
+    fetchPlayer {
       ...PlayerFieldsWithFriends
     }
   }
 `;
 
-export const UPDATE_PLAYER = gql`
+export const SEARCH_PLAYERS_BY_TAG = gql`
   ${PLAYER_FIELDS_WITH_FRIENDS}
 
-  mutation updatePlayer($input: UpdatePlayerInput!) {
-    updatePlayer(input: $input) {
+  query searchPlayersByTag($input: SearchPlayersByTagInput!) {
+    searchPlayersByTag(input: $input) {
       ...PlayerFieldsWithFriends
     }
   }
