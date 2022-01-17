@@ -22,11 +22,30 @@ export interface CreateGameInput {
   teamTwoScore: Scalars['Int'];
 }
 
+export interface CreateNotificationInput {
+  context: NotificationContext;
+  from: Scalars['String'];
+  notificationType: NotificationType;
+  resourceUrl?: InputMaybe<Scalars['String']>;
+  to: Scalars['String'];
+}
+
 export interface CreatePlayerInput {
+  email: Scalars['String'];
   nickname: Scalars['String'];
+  picture?: InputMaybe<Scalars['String']>;
 }
 
 export interface FetchGameInput {
+  id: Scalars['String'];
+}
+
+export interface FetchNotificationInput {
+  id: Scalars['String'];
+  includeDone?: InputMaybe<Scalars['Boolean']>;
+}
+
+export interface FetchPlayerInput {
   id: Scalars['String'];
 }
 
@@ -41,10 +60,16 @@ export interface Game {
   updatedAt: Scalars['String'];
 }
 
+export interface MarkNotificationAsDoneInput {
+  id: Scalars['String'];
+}
+
 export interface Mutation {
   __typename?: 'Mutation';
   createGame?: Maybe<Game>;
+  createNotification?: Maybe<Notification>;
   createPlayer?: Maybe<Player>;
+  markNotificationAsDone?: Maybe<Notification>;
   updatePlayer?: Maybe<Player>;
 }
 
@@ -54,8 +79,18 @@ export interface MutationCreateGameArgs {
 }
 
 
+export interface MutationCreateNotificationArgs {
+  input: CreateNotificationInput;
+}
+
+
 export interface MutationCreatePlayerArgs {
   input: CreatePlayerInput;
+}
+
+
+export interface MutationMarkNotificationAsDoneArgs {
+  input: MarkNotificationAsDoneInput;
 }
 
 
@@ -63,9 +98,32 @@ export interface MutationUpdatePlayerArgs {
   input: UpdatePlayerInput;
 }
 
+export interface Notification {
+  __typename?: 'Notification';
+  context: NotificationContext;
+  done?: Maybe<Scalars['Boolean']>;
+  from: Player;
+  id?: Maybe<Scalars['String']>;
+  notificationType: NotificationType;
+  resourceUrl?: Maybe<Scalars['String']>;
+  to: Player;
+}
+
+export type NotificationContext =
+  | 'Comment'
+  | 'Game'
+  | 'Player';
+
+export type NotificationType =
+  | 'COMMENT_RECEIVED'
+  | 'FRIEND_REQUEST'
+  | 'GAME_RECORDED';
+
 export interface Player {
   __typename?: 'Player';
   createdAt: Scalars['String'];
+  email: Scalars['String'];
+  friendRequests: Array<Maybe<Player>>;
   friends: Array<Maybe<Player>>;
   id?: Maybe<Scalars['String']>;
   nickname: Scalars['String'];
@@ -77,9 +135,12 @@ export interface Player {
 export interface Query {
   __typename?: 'Query';
   fetchGame?: Maybe<Game>;
+  fetchNotification?: Maybe<Notification>;
   fetchPlayer?: Maybe<Player>;
+  fetchPlayerByEmail?: Maybe<Player>;
   ping: Scalars['String'];
   searchPlayersByTag?: Maybe<Player>;
+  sendFriendRequest?: Maybe<Scalars['String']>;
 }
 
 
@@ -88,16 +149,38 @@ export interface QueryFetchGameArgs {
 }
 
 
+export interface QueryFetchNotificationArgs {
+  input: FetchNotificationInput;
+}
+
+
+export interface QueryFetchPlayerArgs {
+  input?: InputMaybe<FetchPlayerInput>;
+}
+
+
 export interface QuerySearchPlayersByTagArgs {
   input?: InputMaybe<SearchPlayersByTagInput>;
+}
+
+
+export interface QuerySendFriendRequestArgs {
+  input: SendFriendRequestInput;
 }
 
 export interface SearchPlayersByTagInput {
   tag: Scalars['String'];
 }
 
+export interface SendFriendRequestInput {
+  myId: Scalars['String'];
+  theirId: Scalars['String'];
+}
+
 export interface UpdatePlayerInput {
-  id?: InputMaybe<Scalars['String']>;
+  friendRequests?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  friends?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  id: Scalars['String'];
   nickname?: InputMaybe<Scalars['String']>;
   tag?: InputMaybe<Scalars['String']>;
 }
@@ -174,14 +257,22 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<DeepPartial<Scalars['Boolean']>>;
   CreateGameInput: ResolverTypeWrapper<DeepPartial<CreateGameInput>>;
+  CreateNotificationInput: ResolverTypeWrapper<DeepPartial<CreateNotificationInput>>;
   CreatePlayerInput: ResolverTypeWrapper<DeepPartial<CreatePlayerInput>>;
   FetchGameInput: ResolverTypeWrapper<DeepPartial<FetchGameInput>>;
+  FetchNotificationInput: ResolverTypeWrapper<DeepPartial<FetchNotificationInput>>;
+  FetchPlayerInput: ResolverTypeWrapper<DeepPartial<FetchPlayerInput>>;
   Game: ResolverTypeWrapper<DeepPartial<Game>>;
   Int: ResolverTypeWrapper<DeepPartial<Scalars['Int']>>;
+  MarkNotificationAsDoneInput: ResolverTypeWrapper<DeepPartial<MarkNotificationAsDoneInput>>;
   Mutation: ResolverTypeWrapper<{}>;
+  Notification: ResolverTypeWrapper<DeepPartial<Notification>>;
+  NotificationContext: ResolverTypeWrapper<DeepPartial<NotificationContext>>;
+  NotificationType: ResolverTypeWrapper<DeepPartial<NotificationType>>;
   Player: ResolverTypeWrapper<DeepPartial<Player>>;
   Query: ResolverTypeWrapper<{}>;
   SearchPlayersByTagInput: ResolverTypeWrapper<DeepPartial<SearchPlayersByTagInput>>;
+  SendFriendRequestInput: ResolverTypeWrapper<DeepPartial<SendFriendRequestInput>>;
   String: ResolverTypeWrapper<DeepPartial<Scalars['String']>>;
   UpdatePlayerInput: ResolverTypeWrapper<DeepPartial<UpdatePlayerInput>>;
 }>;
@@ -190,14 +281,20 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Boolean: DeepPartial<Scalars['Boolean']>;
   CreateGameInput: DeepPartial<CreateGameInput>;
+  CreateNotificationInput: DeepPartial<CreateNotificationInput>;
   CreatePlayerInput: DeepPartial<CreatePlayerInput>;
   FetchGameInput: DeepPartial<FetchGameInput>;
+  FetchNotificationInput: DeepPartial<FetchNotificationInput>;
+  FetchPlayerInput: DeepPartial<FetchPlayerInput>;
   Game: DeepPartial<Game>;
   Int: DeepPartial<Scalars['Int']>;
+  MarkNotificationAsDoneInput: DeepPartial<MarkNotificationAsDoneInput>;
   Mutation: {};
+  Notification: DeepPartial<Notification>;
   Player: DeepPartial<Player>;
   Query: {};
   SearchPlayersByTagInput: DeepPartial<SearchPlayersByTagInput>;
+  SendFriendRequestInput: DeepPartial<SendFriendRequestInput>;
   String: DeepPartial<Scalars['String']>;
   UpdatePlayerInput: DeepPartial<UpdatePlayerInput>;
 }>;
@@ -215,12 +312,27 @@ export type GameResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   createGame?: Resolver<Maybe<ResolversTypes['Game']>, ParentType, ContextType, RequireFields<MutationCreateGameArgs, 'input'>>;
+  createNotification?: Resolver<Maybe<ResolversTypes['Notification']>, ParentType, ContextType, RequireFields<MutationCreateNotificationArgs, 'input'>>;
   createPlayer?: Resolver<Maybe<ResolversTypes['Player']>, ParentType, ContextType, RequireFields<MutationCreatePlayerArgs, 'input'>>;
+  markNotificationAsDone?: Resolver<Maybe<ResolversTypes['Notification']>, ParentType, ContextType, RequireFields<MutationMarkNotificationAsDoneArgs, 'input'>>;
   updatePlayer?: Resolver<Maybe<ResolversTypes['Player']>, ParentType, ContextType, RequireFields<MutationUpdatePlayerArgs, 'input'>>;
+}>;
+
+export type NotificationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Notification'] = ResolversParentTypes['Notification']> = ResolversObject<{
+  context?: Resolver<ResolversTypes['NotificationContext'], ParentType, ContextType>;
+  done?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['Player'], ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  notificationType?: Resolver<ResolversTypes['NotificationType'], ParentType, ContextType>;
+  resourceUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['Player'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type PlayerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Player'] = ResolversParentTypes['Player']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  friendRequests?: Resolver<Array<Maybe<ResolversTypes['Player']>>, ParentType, ContextType>;
   friends?: Resolver<Array<Maybe<ResolversTypes['Player']>>, ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   nickname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -232,14 +344,18 @@ export type PlayerResolvers<ContextType = any, ParentType extends ResolversParen
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   fetchGame?: Resolver<Maybe<ResolversTypes['Game']>, ParentType, ContextType, RequireFields<QueryFetchGameArgs, 'input'>>;
-  fetchPlayer?: Resolver<Maybe<ResolversTypes['Player']>, ParentType, ContextType>;
+  fetchNotification?: Resolver<Maybe<ResolversTypes['Notification']>, ParentType, ContextType, RequireFields<QueryFetchNotificationArgs, 'input'>>;
+  fetchPlayer?: Resolver<Maybe<ResolversTypes['Player']>, ParentType, ContextType, RequireFields<QueryFetchPlayerArgs, never>>;
+  fetchPlayerByEmail?: Resolver<Maybe<ResolversTypes['Player']>, ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   searchPlayersByTag?: Resolver<Maybe<ResolversTypes['Player']>, ParentType, ContextType, RequireFields<QuerySearchPlayersByTagArgs, never>>;
+  sendFriendRequest?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QuerySendFriendRequestArgs, 'input'>>;
 }>;
 
 export type Resolvers<ContextType = any> = ResolversObject<{
   Game?: GameResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Notification?: NotificationResolvers<ContextType>;
   Player?: PlayerResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
 }>;

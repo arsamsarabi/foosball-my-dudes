@@ -4,6 +4,11 @@ mongoose.Promise = global.Promise;
 
 const PlayerSchema = new Schema(
   {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     nickname: {
       type: String,
       trim: true,
@@ -14,6 +19,12 @@ const PlayerSchema = new Schema(
       required: true,
     },
     friends: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Player",
+      },
+    ],
+    friendRequests: [
       {
         type: Schema.Types.ObjectId,
         ref: "Player",

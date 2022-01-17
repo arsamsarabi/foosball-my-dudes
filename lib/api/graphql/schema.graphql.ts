@@ -3,12 +3,14 @@ import { gql } from "apollo-server-micro";
 export default gql`
   type Player {
     id: String
+    email: String!
     nickname: String!
     friends: [Player]!
     tag: String!
     createdAt: String!
     updatedAt: String!
     picture: String
+    friendRequests: [Player]!
   }
 
   type Game {
@@ -21,6 +23,32 @@ export default gql`
     updatedAt: String!
   }
 
+  enum NotificationContext {
+    Game
+    Comment
+    Player
+  }
+
+  enum NotificationType {
+    GAME_RECORDED
+    COMMENT_RECEIVED
+    FRIEND_REQUEST
+  }
+
+  type Notification {
+    id: String
+    from: Player!
+    to: Player!
+    context: NotificationContext!
+    resourceUrl: String
+    notificationType: NotificationType!
+    done: Boolean
+  }
+
+  input FetchPlayerInput {
+    id: String!
+  }
+
   input FetchGameInput {
     id: String!
   }
@@ -29,21 +57,38 @@ export default gql`
     tag: String!
   }
 
+  input SendFriendRequestInput {
+    myId: String!
+    theirId: String!
+  }
+
+  input FetchNotificationInput {
+    id: String!
+    includeDone: Boolean
+  }
+
   type Query {
     ping: String!
-    fetchPlayer: Player
+    fetchPlayer(input: FetchPlayerInput): Player
+    fetchPlayerByEmail: Player
     fetchGame(input: FetchGameInput!): Game
     searchPlayersByTag(input: SearchPlayersByTagInput): Player
+    sendFriendRequest(input: SendFriendRequestInput!): String
+    fetchNotification(input: FetchNotificationInput!): Notification
   }
 
   input CreatePlayerInput {
     nickname: String!
+    picture: String
+    email: String!
   }
 
   input UpdatePlayerInput {
-    id: String
+    id: String!
     nickname: String
     tag: String
+    friends: [String]
+    friendRequests: [String]
   }
 
   input CreateGameInput {
@@ -53,9 +98,23 @@ export default gql`
     teamTwoScore: Int!
   }
 
+  input CreateNotificationInput {
+    from: String!
+    to: String!
+    context: NotificationContext!
+    resourceUrl: String
+    notificationType: NotificationType!
+  }
+
+  input MarkNotificationAsDoneInput {
+    id: String!
+  }
+
   type Mutation {
     createPlayer(input: CreatePlayerInput!): Player
     updatePlayer(input: UpdatePlayerInput!): Player
     createGame(input: CreateGameInput!): Game
+    createNotification(input: CreateNotificationInput!): Notification
+    markNotificationAsDone(input: MarkNotificationAsDoneInput!): Notification
   }
 `;

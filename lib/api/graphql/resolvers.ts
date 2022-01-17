@@ -1,9 +1,12 @@
+import type { UserProfile } from "@auth0/nextjs-auth0";
+import { CgStack } from "react-icons/cg";
+
 import type { DataSources } from "./dataSources";
 import type { Resolvers } from "./generated/resolver";
 
 type Context = {
   accessToken: string;
-  user: { org_id: string; sub: string; picture: string };
+  user: UserProfile;
   dataSources: DataSources;
   playerId: string;
 };
@@ -11,76 +14,95 @@ type Context = {
 const resolvers: Resolvers<Context> = {
   Query: {
     ping: () => "pong",
-    fetchPlayer: async (_parent, _args, ctx) => {
-      const metadata = await ctx.dataSources.getUserAppMetadata({
-        userId: ctx.user.sub,
-      });
-      if (metadata.playerId) {
-        const response = ctx.dataSources.fetchPlayer({
-          id: String(metadata.playerId),
-        });
-        return response;
-      } else {
-        const newPlayer = await ctx.dataSources.createPlayer({});
-        await ctx.dataSources.updateUserAppMetadata({
-          userId: ctx.user.sub,
-          metadata: {
-            playerId: newPlayer.id,
-          },
-        });
-        return await ctx.dataSources.fetchPlayer({ id: String(newPlayer.id) });
+    fetchPlayer: async (_parent, args, ctx) => {
+      const { user, dataSources } = ctx;
+      if (!args.input) {
+        throw new Error("Missing input");
       }
+      return await dataSources.fetchPlayer({ id: args.input.id });
+    },
+    fetchPlayerByEmail: async (_parent, _args, ctx) => {
+      const { dataSources, user } = ctx;
+
+      if (!user.email) {
+        throw new Error("User not found!");
+      }
+
+      const fetchResponse = await dataSources.fetchPlayerByEmail({
+        email: user.email,
+      });
+
+      if (fetchResponse) return fetchResponse;
+
+      const newPlayer = await dataSources.createPlayer({
+        nickname: user.nickname || user.name || user.email || undefined,
+        picture: user.picture || undefined,
+        email: user.email,
+      });
+
+      return newPlayer;
     },
     fetchGame: async (_parent, args, ctx) => {
       return await ctx.dataSources.fetchGame({ id: args.input.id });
     },
     searchPlayersByTag: async (_parent, args, ctx) => {
-      console.log(args?.input?.tag);
-
-      const player = await ctx.dataSources.searchPlayersByTag({
+      return await ctx.dataSources.searchPlayersByTag({
         tag: String(args?.input?.tag),
       });
-
-      console.log(player);
-
-      return player;
+    },
+    sendFriendRequest: async (_parent, args, ctx) => {
+      return await ctx.dataSources.sendFriendRequest({
+        ...args.input,
+      });
+    },
+    fetchNotification: async (_parent, args, ctx) => {
+      return await ctx.dataSources.fetchNotification({
+        id: args.input.id,
+      });
     },
   },
   Mutation: {
     createPlayer: async (_parent, args, ctx) => {
-      console.log("createPlayer");
-      console.log(ctx);
-      const newPlayer = await ctx.dataSources.createPlayer({
-        nickname: args.input.nickname,
-        picture: ctx.user.picture,
+      const { user, playerId, dataSources } = ctx;
+      const {
+        input: { nickname },
+      } = args;
+
+      if (playerId.length) {
+        console.table(ctx);
+        throw new Error("Player already exists!");
+      }
+
+      if (!user.email) {
+        throw new Error("User not found!");
+      }
+
+      const newPlayer = await dataSources.createPlayer({
+        nickname,
+        picture: user.picture || undefined,
+        email: user.email,
       });
-      await ctx.dataSources.updateUserAppMetadata({
-        userId: ctx.user.sub,
-        metadata: {
-          playerId: newPlayer.id,
-        },
-      });
+
       return await ctx.dataSources.fetchPlayer({ id: String(newPlayer.id) });
     },
     updatePlayer: async (_parent, args, ctx) => {
-      const { id, ...rest } = args.input;
-
-      const { playerId } = await ctx.dataSources.getUserAppMetadata({
-        userId: ctx.user.sub,
+      return await ctx.dataSources.updatePlayer({
+        toUpdate: args.input,
       });
-
-      const updated = await ctx.dataSources.updatePlayer({
-        toUpdate: {
-          id: String(playerId),
-          ...rest,
-        },
-      });
-
-      return updated;
     },
     createGame: async (_parent, args, ctx) => {
       return await ctx.dataSources.createGame({
         newGame: args.input,
+      });
+    },
+    createNotification: async (_parent, args, ctx) => {
+      return await ctx.dataSources.createNotification({
+        newNotification: args.input,
+      });
+    },
+    markNotificationAsDone: async (_parent, args, ctx) => {
+      return await ctx.dataSources.markNotificationAsDone({
+        id: args.input.id,
       });
     },
   },

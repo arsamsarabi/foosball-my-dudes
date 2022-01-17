@@ -21,15 +21,3 @@ export const NavLink: FC<NavLinkProps> = ({ to, children, ...rest }) => {
     </Link>
   );
 };
-
-export type IconLinkProps = ActionIconProps<any> & {
-  to: string;
-};
-
-export const IconLink: FC<IconLinkProps> = ({ to, children, ...rest }) => {
-  return (
-    <Link href={to} passHref>
-      <ActionIcon {...rest}>{children}</ActionIcon>
-    </Link>
-  );
-};

@@ -7,15 +7,11 @@ import {
   LoadingOverlay,
   Space,
 } from "@mantine/core";
-import { useApolloClient } from "@apollo/client";
 import { GiBugleCall } from "react-icons/gi";
-import { BsCheck2All } from "react-icons/bs";
 import { FiSave } from "react-icons/fi";
-import { useNotifications } from "@mantine/notifications";
 
-import { SEARCH_PLAYERS_BY_TAG } from "../../gql";
 import { PlayerFound } from "./PlayerFound";
-import { Player } from "../../types";
+import { useSearchPlayerContext } from "../../context";
 
 export type AddFriendModalProps = {
   open: boolean;
@@ -23,47 +19,23 @@ export type AddFriendModalProps = {
 };
 
 export const AddFriendModal: FC<AddFriendModalProps> = ({ open, toggle }) => {
-  const [result, setResult] = useState<Player | null>(null);
-  const [value, setValue] = useState("Secret Dreaming Superhero");
-  const [loading, setLoading] = useState(false);
-  const client = useApolloClient();
-  const notifications = useNotifications();
+  const [value, setValue] = useState("Strong Master Ogre");
+  const { found, reset, searchPlayerByTag, loading } = useSearchPlayerContext();
 
   const onSearch = async () => {
-    setLoading(true);
-    const {
-      data: { searchPlayersByTag },
-    } = await client.query({
-      query: SEARCH_PLAYERS_BY_TAG,
-      variables: { input: { tag: value } },
-    });
-    setLoading(false);
-
-    setResult(searchPlayersByTag);
-  };
-
-  const onSubmit = async () => {
-    setLoading(true);
-    const {
-      data: { searchPlayersByTag },
-    } = await client.mutate({
-      mutation: SEARCH_PLAYERS_BY_TAG,
-      variables: { input: { tag: value } },
-    });
-    setLoading(false);
-    setValue("");
-    notifications.showNotification({
-      title: "Success!",
-      message: "You Friend request has been sent!",
-      icon: <BsCheck2All />,
-      color: "green",
-      autoClose: 3000,
-    });
-    toggle();
+    await searchPlayerByTag(value);
   };
 
   return (
-    <Modal opened={open} onClose={toggle} title="Find a player">
+    <Modal
+      opened={open}
+      onClose={async () => {
+        setValue("");
+        reset();
+        toggle();
+      }}
+      title="Find a player"
+    >
       <LoadingOverlay visible={loading} />
       <Group direction="column">
         <TextInput
@@ -87,11 +59,10 @@ export const AddFriendModal: FC<AddFriendModalProps> = ({ open, toggle }) => {
           Search
         </Button>
       </Group>
-      {result && (
+      {found && (
         <>
           <Space h={12} />
-
-          <PlayerFound player={result} addPlayer={} />
+          <PlayerFound close={toggle} />
         </>
       )}
     </Modal>

@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { useUser } from "@auth0/nextjs-auth0";
+import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0";
 import {
   Container,
   Avatar,
@@ -11,26 +11,21 @@ import {
 import dayjs from "dayjs";
 import { GrEdit } from "react-icons/gr";
 
-import { Text, Title } from "../Text";
-import { Player } from "../../types";
-import { EditNickname } from "./EditNickname";
+import { Text, Title, EditNickname, Loading } from "../components";
+import { useFetchPlayer } from "../hooks";
 
-type Props = {
-  player?: Player;
-  setPlayer: (player: Partial<Player>) => void;
-};
-
-export const Profile: FC<Props> = ({ player, setPlayer }) => {
-  const [modalOpne, setModalOpen] = useState(false);
-  const { user } = useUser();
+export const Profile: FC = () => {
+  const { user, error, isLoading } = useUser();
+  const { player, loading } = useFetchPlayer();
   const theme = useMantineTheme();
+  const [modalOpen, setModalOpen] = useState(false);
+
+  if (isLoading || loading) return <Loading />;
+  if (error || !player)
+    return <div>{error?.message || "Player not found!"}</div>;
   if (!user) {
     return null;
   }
-
-  console.log("user", user);
-  console.log("player", player);
-  console.log("theme", theme);
 
   const { picture } = user || {};
 
@@ -40,7 +35,13 @@ export const Profile: FC<Props> = ({ player, setPlayer }) => {
     <>
       <Container>
         <Space h={24} />
-        {picture && <Avatar src={picture} alt={player?.nickname} size={124} />}
+        {picture || player.picture ? (
+          <Avatar
+            src={picture || player.picture}
+            alt={player?.nickname}
+            size={124}
+          />
+        ) : null}
         <Space h={24} />
         <Group>
           <Title order={2}>{player?.nickname}</Title>
@@ -65,12 +66,11 @@ export const Profile: FC<Props> = ({ player, setPlayer }) => {
           </Text>
         )}
       </Container>
-      <EditNickname
-        nickname={String(player?.nickname)}
-        open={modalOpne}
-        toggle={() => setModalOpen(!modalOpne)}
-        setPlayer={setPlayer}
-      />
+      <EditNickname open={modalOpen} toggle={() => setModalOpen(!modalOpen)} />
     </>
   );
 };
+
+export default Profile;
+
+export const getServerSideProps = withPageAuthRequired();

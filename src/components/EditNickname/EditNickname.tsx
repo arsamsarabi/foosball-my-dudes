@@ -6,23 +6,17 @@ import { BsCheck2All } from "react-icons/bs";
 import { FiSave } from "react-icons/fi";
 import { useNotifications } from "@mantine/notifications";
 
-import { UPDATE_PLAYER } from "../../../gql";
-import { Player } from "../../../types";
+import { UPDATE_PLAYER } from "../../gql";
+import { usePlayerContext } from "../../context";
 
 export type EditNicknameProps = {
   open: boolean;
   toggle: () => void;
-  nickname: string;
-  setPlayer: (player: Partial<Player>) => void;
 };
 
-export const EditNickname: FC<EditNicknameProps> = ({
-  open,
-  toggle,
-  nickname,
-  setPlayer,
-}) => {
-  const [value, setValue] = useState(nickname);
+export const EditNickname: FC<EditNicknameProps> = ({ open, toggle }) => {
+  const { player, setPlayer } = usePlayerContext();
+  const [value, setValue] = useState(player?.nickname || "");
   const [loading, setLoading] = useState(false);
   const client = useApolloClient();
   const notifications = useNotifications();
@@ -33,7 +27,12 @@ export const EditNickname: FC<EditNicknameProps> = ({
       data: { updatePlayer },
     } = await client.mutate({
       mutation: UPDATE_PLAYER,
-      variables: { input: { nickname: value } },
+      variables: {
+        input: {
+          id: player?.id,
+          nickname: value,
+        },
+      },
     });
     setLoading(false);
     setPlayer(updatePlayer);
@@ -58,7 +57,6 @@ export const EditNickname: FC<EditNicknameProps> = ({
           required
           onChange={(event) => {
             if (event.currentTarget.value.length <= 12) {
-              console.log(event.currentTarget.value.length);
               setValue(event.currentTarget.value);
             }
           }}
@@ -66,9 +64,8 @@ export const EditNickname: FC<EditNicknameProps> = ({
           radius="md"
           type="text"
           size="lg"
-          min={3}
-          max={12}
           value={value}
+          autoFocus
         />
         <Button
           variant="outline"

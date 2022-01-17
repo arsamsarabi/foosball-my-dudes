@@ -12,6 +12,16 @@ export const FETCH_PLAYER_BY_ID = gql`
   }
 `;
 
+export const FETCH_PLAYER_BY_SUB = gql`
+  ${PLAYER_FIELDS_WITH_FRIENDS}
+
+  query fetchPlayerByEmail {
+    fetchPlayerByEmail {
+      ...PlayerFieldsWithFriends
+    }
+  }
+`;
+
 export const SEARCH_PLAYERS_BY_TAG = gql`
   ${PLAYER_FIELDS_WITH_FRIENDS}
 
@@ -19,5 +29,11 @@ export const SEARCH_PLAYERS_BY_TAG = gql`
     searchPlayersByTag(input: $input) {
       ...PlayerFieldsWithFriends
     }
+  }
+`;
+
+export const SEND_FRIEND_REQUEST = gql`
+  query sendFriendRequest($input: SendFriendRequestInput!) {
+    sendFriendRequest(input: $input)
   }
 `;

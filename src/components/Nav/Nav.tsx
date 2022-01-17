@@ -2,11 +2,13 @@ import { FC, useState } from "react";
 import { Space, Box } from "@mantine/core";
 import { RiLogoutCircleLine } from "react-icons/ri";
 import { VscDebugStart } from "react-icons/vsc";
-import { Button, ActionIcon } from "@mantine/core";
+import { Button } from "@mantine/core";
 import { FaUserFriends } from "react-icons/fa";
+import { CgProfile } from "react-icons/cg";
+import { MdHistoryToggleOff, MdOutlineLeaderboard } from "react-icons/md";
 
 import { routes } from "../../config";
-import { NavLink, IconLink } from "./NavLink";
+import { NavLink } from "./NavLink";
 import { AddFriendModal } from "../AddFriendModal";
 
 export const Nav: FC = () => {
@@ -14,6 +16,26 @@ export const Nav: FC = () => {
   return (
     <>
       <NavBox>
+        <NavLink to={routes.profile} leftIcon={<CgProfile />} variant="filled">
+          Profile
+        </NavLink>
+        <Space h={16} />
+        <NavLink
+          to={routes.history}
+          leftIcon={<MdHistoryToggleOff />}
+          variant="filled"
+        >
+          History
+        </NavLink>
+        <Space h={16} />
+        <NavLink
+          to={routes.leaderboard}
+          leftIcon={<MdOutlineLeaderboard />}
+          variant="filled"
+        >
+          Leaderboard
+        </NavLink>
+        <Space h={16} />
         <Button
           onClick={() => {}}
           color="primary"
@@ -33,6 +55,7 @@ export const Nav: FC = () => {
         >
           Add a friend
         </Button>
+        <Space h={16} />
         <NavLink
           to={routes.logout}
           color="red"
@@ -60,7 +83,7 @@ export const NavBox: FC = ({ children }) => {
         alignItems: "center",
         height: "100%",
 
-        "& > *:last-child": {
+        "& > *:nth-child(6)": {
           marginTop: "auto",
         },
       })}
