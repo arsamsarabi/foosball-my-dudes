@@ -10,6 +10,7 @@ import {
 } from "@mantine/core";
 import { useRouter } from "next/router";
 import { useViewportSize } from "@mantine/hooks";
+import { useUser } from "@auth0/nextjs-auth0";
 
 import { NotificationsButton } from "../NotificationsButton";
 import { Notifications } from "../Notifications";
@@ -20,6 +21,7 @@ import { Title } from "../Text";
 export type LayoutProps = {};
 
 export const Layout: FC<LayoutProps> = ({ children }) => {
+  const { user } = useUser();
   const [opened, setOpened] = useState(false);
   const theme = useMantineTheme();
   const router = useRouter();
@@ -64,16 +66,18 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
             })}
           >
             <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-              <Grid columns={12}>
-                <Grid.Col span={2} offset={1}>
-                  <Burger
-                    opened={opened}
-                    onClick={() => setOpened((o) => !o)}
-                    size="sm"
-                    color={theme.colors.gray[6]}
-                    mr="xl"
-                  />
-                </Grid.Col>
+              <Grid columns={12} grow={!user}>
+                {user && (
+                  <Grid.Col span={2} offset={1}>
+                    <Burger
+                      opened={opened}
+                      onClick={() => setOpened((o) => !o)}
+                      size="sm"
+                      color={theme.colors.gray[6]}
+                      mr="xl"
+                    />
+                  </Grid.Col>
+                )}
                 <Grid.Col span={9}>
                   <Title order={4} ml={12}>
                     Foosball My Dudes

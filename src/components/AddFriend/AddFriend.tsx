@@ -19,7 +19,7 @@ export type AddFriendProps = {
 };
 
 export const AddFriend: FC<AddFriendProps> = ({ open, toggle }) => {
-  const [value, setValue] = useState("Strong Master Ogre");
+  const [value, setValue] = useState("");
   const { found, reset, searchPlayerByTag, loading } = useSearchPlayerContext();
 
   const onSearch = async () => {
