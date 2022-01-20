@@ -22,29 +22,25 @@ import {
 import { useFetchPlayer } from "../hooks";
 
 export const Profile: FC = () => {
-  const { user, error, isLoading } = useUser();
-  const { player, loading } = useFetchPlayer();
+  const { user } = useUser();
+  const { player, loading, error } = useFetchPlayer();
   const theme = useMantineTheme();
   const [modalOpen, setModalOpen] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
-  if (isLoading || loading) return <Loading />;
-  if (error || !player)
-    return <div>{error?.message || "Player not found!"}</div>;
-  if (!user) return null;
+  if (loading) return <Loading />;
+  if (error || !player) return <Text>{error}</Text>;
 
-  const { picture } = user || {};
-
-  const lastSeen = user["https://arsam.dev/last_seen"] || "Never";
+  const lastSeen = user ? user["https://arsam.dev/last_seen"] : "Never";
 
   return (
     <>
       <Container>
         <Space h={24} />
-        {picture || player.picture ? (
+        {player.picture ? (
           <UnstyledButton onClick={() => setAvatarModalOpen(true)}>
             <Avatar
-              src={String(player.picture || picture)}
+              src={String(player.picture)}
               alt={player?.nickname}
               size={124}
             />

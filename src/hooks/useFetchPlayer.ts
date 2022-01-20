@@ -4,15 +4,23 @@ import { useUser } from "@auth0/nextjs-auth0";
 
 import { FETCH_PLAYER_BY_SUB } from "../gql";
 import { usePlayerContext } from "../context";
+import { Player } from "../types";
+
+type UseFetchPlayer = () => {
+  loading: boolean;
+  error: String | null;
+  player: Player | null;
+};
 
 export const useFetchPlayer = () => {
   const client = useApolloClient();
+  const { user, error, isLoading } = useUser();
   const [loading, setLoading] = useState<boolean>(true);
   const { player, setPlayer } = usePlayerContext();
-  const { user, isLoading, error } = useUser();
 
   useEffect(() => {
     async function fetchPlayer() {
+      setLoading(true);
       const {
         data: { fetchPlayerByEmail },
         loading,
@@ -26,9 +34,15 @@ export const useFetchPlayer = () => {
 
     if (user && !isLoading && !error) {
       fetchPlayer();
-      setLoading(false);
     }
   }, [user, isLoading, error]);
+
+  if (isLoading) return { loading: isLoading, error: "fetching user ..." };
+
+  if (error)
+    return { loading: false, error: error.message || "Error fetching user." };
+
+  if (!user) return { loading: false, error: "User not found." };
 
   return { loading, player };
 };
