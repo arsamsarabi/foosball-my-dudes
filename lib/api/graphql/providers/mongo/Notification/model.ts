@@ -19,7 +19,7 @@ const NotificationSchema = new Schema(
       enum: ["Game", "Comment", "Player"],
       required: true,
     },
-    resourceUrl: {
+    resourceId: {
       type: Schema.Types.ObjectId,
       refPath: "context",
     },
@@ -30,6 +30,7 @@ const NotificationSchema = new Schema(
     },
     done: {
       type: Boolean,
+      required: true,
       default: false,
     },
   },

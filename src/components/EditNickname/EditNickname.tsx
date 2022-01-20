@@ -42,13 +42,18 @@ export const EditNickname: FC<EditNicknameProps> = ({ open, toggle }) => {
       message: "We've changed your nickname!",
       icon: <BsCheck2All />,
       color: "green",
-      autoClose: 3000,
+      autoClose: 5000,
     });
     toggle();
   };
 
   return (
-    <Modal opened={open} onClose={toggle} title="Edit player nickname">
+    <Modal
+      opened={open}
+      onClose={toggle}
+      title="Edit player nickname"
+      radius="sm"
+    >
       <LoadingOverlay visible={loading} />
       <Group direction="column">
         <TextInput

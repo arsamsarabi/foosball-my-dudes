@@ -17,7 +17,9 @@ export const permissions = shield(
       fetchGame: isAuthenticated,
       searchPlayersByTag: isAuthenticated,
       sendFriendRequest: isAuthenticated,
-      fetchNotification: isAuthenticated,
+      fetchMyNotifications: isAuthenticated,
+      fetchMyGames: isAuthenticated,
+      fetchLeaderboard: isAuthenticated,
     },
     Mutation: {
       "*": deny,
@@ -26,6 +28,8 @@ export const permissions = shield(
       createGame: isAuthenticated,
       createNotification: isAuthenticated,
       markNotificationAsDone: isAuthenticated,
+      acceptFriendRequest: isAuthenticated,
+      rejectFriendRequest: isAuthenticated,
     },
   },
   {

@@ -15,6 +15,12 @@ export const PLAYER_FIELDS_WITH_FRIENDS = gql`
       nickname
       tag
       picture
+      friendRequests {
+        id
+      }
+      friends {
+        id
+      }
     }
     friends {
       id
@@ -24,5 +30,31 @@ export const PLAYER_FIELDS_WITH_FRIENDS = gql`
       updatedAt
       picture
     }
+  }
+`;
+
+export const GAME_FIELDS_WITH_PLAYERS = gql`
+  fragment GameFieldsWithPlayers on Game {
+    __typename
+    id
+    teamOne {
+      id
+      nickname
+      picture
+    }
+    teamTwo {
+      id
+      nickname
+      picture
+    }
+    teamOneScore
+    teamTwoScore
+    creator {
+      id
+      nickname
+      picture
+    }
+    createdAt
+    updatedAt
   }
 `;

@@ -7,11 +7,18 @@ import {
   ActionIcon,
   Group,
   useMantineTheme,
+  UnstyledButton,
 } from "@mantine/core";
 import dayjs from "dayjs";
 import { GrEdit } from "react-icons/gr";
 
-import { Text, Title, EditNickname, Loading } from "../components";
+import {
+  Text,
+  Title,
+  EditNickname,
+  Loading,
+  ChangeAvatar,
+} from "../components";
 import { useFetchPlayer } from "../hooks";
 
 export const Profile: FC = () => {
@@ -19,13 +26,12 @@ export const Profile: FC = () => {
   const { player, loading } = useFetchPlayer();
   const theme = useMantineTheme();
   const [modalOpen, setModalOpen] = useState(false);
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
   if (isLoading || loading) return <Loading />;
   if (error || !player)
     return <div>{error?.message || "Player not found!"}</div>;
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   const { picture } = user || {};
 
@@ -36,11 +42,13 @@ export const Profile: FC = () => {
       <Container>
         <Space h={24} />
         {picture || player.picture ? (
-          <Avatar
-            src={picture || player.picture}
-            alt={player?.nickname}
-            size={124}
-          />
+          <UnstyledButton onClick={() => setAvatarModalOpen(true)}>
+            <Avatar
+              src={String(player.picture || picture)}
+              alt={player?.nickname}
+              size={124}
+            />
+          </UnstyledButton>
         ) : null}
         <Space h={24} />
         <Group>
@@ -53,7 +61,16 @@ export const Profile: FC = () => {
             <GrEdit />
           </ActionIcon>
         </Group>
-        <Text>{player?.tag}</Text>
+        <Text
+          variant="gradient"
+          gradient={{
+            from: theme.colors.primaryLight[0],
+            to: theme.colors.accent[0],
+            deg: 45,
+          }}
+        >
+          {player?.tag}
+        </Text>
         <Space h={12} />
         <Text>
           Member since: {dayjs(player?.createdAt).format("DD-MMM-YYYY")}
@@ -67,6 +84,10 @@ export const Profile: FC = () => {
         )}
       </Container>
       <EditNickname open={modalOpen} toggle={() => setModalOpen(!modalOpen)} />
+      <ChangeAvatar
+        open={avatarModalOpen}
+        toggle={() => setAvatarModalOpen(!avatarModalOpen)}
+      />
     </>
   );
 };

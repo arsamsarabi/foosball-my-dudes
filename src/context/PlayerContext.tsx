@@ -6,23 +6,29 @@ import React, {
   FC,
 } from "react";
 
-import type { Player } from "../types";
+import type { Game, Player } from "../types";
 
 interface PlayerState {
   player: Player | null;
+  games: Array<Game>;
 }
 
 type PlayerContext = PlayerState & {
   setPlayer: (player: Player) => void;
+  setGames: (games: Array<Game>) => void;
+  reset: () => void;
 };
 
 const initialState: PlayerState = {
   player: null,
+  games: [],
 };
 
 const PlayerContext = createContext<PlayerContext>({
   ...initialState,
   setPlayer: () => {},
+  setGames: () => {},
+  reset: () => {},
 });
 
 interface PlayerProviderProps {
@@ -35,6 +41,8 @@ const PlayerProvider: FC<PlayerProviderProps> = ({ children }) => {
   const value: PlayerContext = {
     ...state,
     setPlayer: (player) => setState({ ...state, player }),
+    setGames: (games) => setState({ ...state, games }),
+    reset: () => setState(initialState),
   };
 
   return (

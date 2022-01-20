@@ -1,8 +1,9 @@
 import type { UserProfile } from "@auth0/nextjs-auth0";
-import { CgStack } from "react-icons/cg";
 
 import type { DataSources } from "./dataSources";
-import type { Resolvers } from "./generated/resolver";
+import type { CreateNotificationInput, Resolvers } from "./generated/resolver";
+import { Game, PlayerStat } from "./generated/schema";
+import { createPlayerStat } from "./utils";
 
 type Context = {
   accessToken: string;
@@ -55,10 +56,43 @@ const resolvers: Resolvers<Context> = {
         ...args.input,
       });
     },
-    fetchNotification: async (_parent, args, ctx) => {
-      return await ctx.dataSources.fetchNotification({
+    fetchMyNotifications: async (_parent, args, ctx) => {
+      return await ctx.dataSources.fetchMyNotifications({
         id: args.input.id,
       });
+    },
+    fetchMyGames: async (_parent, { input }, ctx) => {
+      return await ctx.dataSources.fetchMyGames({
+        playerId: String(input?.playerId),
+        limit: Number(input?.limit),
+        skip: Number(input?.skip),
+      });
+    },
+    fetchLeaderboard: async (_parent, { input }, ctx) => {
+      const leaderboard: Array<PlayerStat> = [];
+
+      const playersAndGames = await Promise.all(
+        input.players.map(async (playerId: string) => {
+          const player = await ctx.dataSources.fetchPlayer({ id: playerId });
+          let games: Array<Game> = [];
+          if (player && player.id) {
+            games = await ctx.dataSources.fetchMyGames({
+              playerId: player.id,
+              limit: 50,
+              skip: 0,
+            });
+          }
+          return { player, games };
+        })
+      );
+
+      playersAndGames.forEach((item) => {
+        if (item.player) {
+          leaderboard.push(createPlayerStat(item));
+        }
+      });
+
+      return leaderboard;
     },
   },
   Mutation: {
@@ -91,9 +125,31 @@ const resolvers: Resolvers<Context> = {
       });
     },
     createGame: async (_parent, args, ctx) => {
-      return await ctx.dataSources.createGame({
+      const newGame = await ctx.dataSources.createGame({
         newGame: args.input,
       });
+
+      if (newGame.id) {
+        [...args.input.teamOne, ...args.input.teamTwo].forEach(
+          async (playerId) => {
+            if (playerId === args.input.creator) return;
+
+            const notification: CreateNotificationInput = {
+              context: "Game",
+              from: args.input.creator,
+              notificationType: "GAME_RECORDED",
+              resourceId: newGame.id,
+              to: playerId,
+            };
+
+            await ctx.dataSources.createNotification({
+              newNotification: notification,
+            });
+          }
+        );
+      }
+
+      return newGame;
     },
     createNotification: async (_parent, args, ctx) => {
       return await ctx.dataSources.createNotification({
@@ -103,6 +159,16 @@ const resolvers: Resolvers<Context> = {
     markNotificationAsDone: async (_parent, args, ctx) => {
       return await ctx.dataSources.markNotificationAsDone({
         id: args.input.id,
+      });
+    },
+    acceptFriendRequest: async (_parent, args, ctx) => {
+      return await ctx.dataSources.acceptFriendRequest({
+        ...args.input,
+      });
+    },
+    rejectFriendRequest: async (_parent, args, ctx) => {
+      return await ctx.dataSources.rejectFriendRequest({
+        ...args.input,
       });
     },
   },

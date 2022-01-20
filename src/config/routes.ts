@@ -4,4 +4,5 @@ export const routes = {
   profile: "/profile",
   history: "/history",
   leaderboard: "/leaderboard",
+  game: "/game",
 };

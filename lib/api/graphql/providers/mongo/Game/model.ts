@@ -24,6 +24,10 @@ const GameSchema = new Schema(
       type: Number,
       required: true,
     },
+    creator: {
+      type: Schema.Types.ObjectId,
+      ref: "Player",
+    },
   },
   {
     timestamps: true,

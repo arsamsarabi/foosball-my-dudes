@@ -4,16 +4,18 @@ import {
 } from "../../../generated/schema";
 import { Notification } from "./model";
 
-type FetchNotification = (args: {
+type FetchMyNotifications = (args: {
   id: string;
   includeDone?: boolean;
-}) => Promise<NotificationType>;
-export const fetchNotification: FetchNotification = async ({
+}) => Promise<Array<NotificationType>>;
+export const fetchMyNotifications: FetchMyNotifications = async ({
   id,
   includeDone = false,
 }) => {
   if (includeDone) return await Notification.findById(id);
-  return await Notification.findById(id, { done: false });
+  return await Notification.find({ to: id, done: false })
+    .populate("from")
+    .populate("to");
 };
 
 type CreateNotification = (args: {
@@ -38,7 +40,7 @@ export const markNotificationAsDone: MarkNotificationAsDone = async ({
 };
 
 export type NotificationProvider = {
-  fetchNotification: FetchNotification;
+  fetchMyNotifications: FetchMyNotifications;
   createNotification: CreateNotification;
   markNotificationAsDone: MarkNotificationAsDone;
 };

@@ -21,3 +21,31 @@ export const UPDATE_PLAYER = gql`
     }
   }
 `;
+
+export const ACCEPT_FRIEND_REQUEST = gql`
+  mutation acceptFriendRequest($input: AcceptFriendRequestInput!) {
+    acceptFriendRequest(input: $input)
+  }
+`;
+
+export const REJECT_FRIEND_REQUEST = gql`
+  mutation rejectFriendRequest($input: RejectFriendRequestInput!) {
+    rejectFriendRequest(input: $input)
+  }
+`;
+
+export const CREATE_GAME = gql`
+  mutation createGame($input: CreateGameInput!) {
+    createGame(input: $input) {
+      id
+    }
+  }
+`;
+
+export const MARK_NOTIFICATION_AS_DONE = gql`
+  mutation markNotificationAsDone($input: MarkNotificationAsDoneInput!) {
+    markNotificationAsDone(input: $input) {
+      id
+    }
+  }
+`;

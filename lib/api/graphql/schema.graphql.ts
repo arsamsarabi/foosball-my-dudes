@@ -19,6 +19,7 @@ export default gql`
     teamTwo: [Player!]!
     teamOneScore: Int!
     teamTwoScore: Int!
+    creator: Player!
     createdAt: String!
     updatedAt: String!
   }
@@ -40,9 +41,20 @@ export default gql`
     from: Player!
     to: Player!
     context: NotificationContext!
-    resourceUrl: String
+    resourceId: String
     notificationType: NotificationType!
     done: Boolean
+  }
+
+  type PlayerStat {
+    playerId: String!
+    gamesPlayed: Int!
+    gamesWon: Int!
+    gamesLost: Int!
+    gamesTied: Int!
+    goalsScored: Int!
+    goalsConceded: Int!
+    playerScore: Float!
   }
 
   input FetchPlayerInput {
@@ -62,19 +74,31 @@ export default gql`
     theirId: String!
   }
 
-  input FetchNotificationInput {
+  input FetchMyNotificationsInput {
     id: String!
     includeDone: Boolean
   }
 
+  input FetchMyGamesInput {
+    playerId: String!
+    skip: Int!
+    limit: Int!
+  }
+
+  input FetchLeaderboardInput {
+    players: [String!]!
+  }
+
   type Query {
     ping: String!
-    fetchPlayer(input: FetchPlayerInput): Player
+    fetchPlayer(input: FetchPlayerInput!): Player
     fetchPlayerByEmail: Player
     fetchGame(input: FetchGameInput!): Game
-    searchPlayersByTag(input: SearchPlayersByTagInput): Player
+    searchPlayersByTag(input: SearchPlayersByTagInput!): Player
     sendFriendRequest(input: SendFriendRequestInput!): String
-    fetchNotification(input: FetchNotificationInput!): Notification
+    fetchMyNotifications(input: FetchMyNotificationsInput!): [Notification]!
+    fetchMyGames(input: FetchMyGamesInput!): [Game]!
+    fetchLeaderboard(input: FetchLeaderboardInput!): [PlayerStat]!
   }
 
   input CreatePlayerInput {
@@ -87,6 +111,7 @@ export default gql`
     id: String!
     nickname: String
     tag: String
+    picture: String
     friends: [String]
     friendRequests: [String]
   }
@@ -96,18 +121,35 @@ export default gql`
     teamTwo: [String!]!
     teamOneScore: Int!
     teamTwoScore: Int!
+    creator: String!
   }
 
   input CreateNotificationInput {
     from: String!
     to: String!
     context: NotificationContext!
-    resourceUrl: String
+    resourceId: String
     notificationType: NotificationType!
   }
 
   input MarkNotificationAsDoneInput {
     id: String!
+  }
+
+  input FriendRequestsPlayerInput {
+    id: String!
+    friends: [String]!
+    friendRequests: [String]!
+  }
+
+  input AcceptFriendRequestInput {
+    from: FriendRequestsPlayerInput!
+    to: FriendRequestsPlayerInput!
+  }
+
+  input RejectFriendRequestInput {
+    from: FriendRequestsPlayerInput!
+    to: FriendRequestsPlayerInput!
   }
 
   type Mutation {
@@ -116,5 +158,7 @@ export default gql`
     createGame(input: CreateGameInput!): Game
     createNotification(input: CreateNotificationInput!): Notification
     markNotificationAsDone(input: MarkNotificationAsDoneInput!): Notification
+    acceptFriendRequest(input: AcceptFriendRequestInput!): String
+    rejectFriendRequest(input: RejectFriendRequestInput!): String
   }
 `;

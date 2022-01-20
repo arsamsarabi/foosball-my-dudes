@@ -12,7 +12,13 @@ export interface Scalars {
   Float: number;
 }
 
+export interface AcceptFriendRequestInput {
+  from: FriendRequestsPlayerInput;
+  to: FriendRequestsPlayerInput;
+}
+
 export interface CreateGameInput {
+  creator: Scalars['String'];
   teamOne: Array<Scalars['String']>;
   teamOneScore: Scalars['Int'];
   teamTwo: Array<Scalars['String']>;
@@ -23,7 +29,7 @@ export interface CreateNotificationInput {
   context: NotificationContext;
   from: Scalars['String'];
   notificationType: NotificationType;
-  resourceUrl?: InputMaybe<Scalars['String']>;
+  resourceId?: InputMaybe<Scalars['String']>;
   to: Scalars['String'];
 }
 
@@ -37,7 +43,17 @@ export interface FetchGameInput {
   id: Scalars['String'];
 }
 
-export interface FetchNotificationInput {
+export interface FetchLeaderboardInput {
+  players: Array<Scalars['String']>;
+}
+
+export interface FetchMyGamesInput {
+  limit: Scalars['Int'];
+  playerId: Scalars['String'];
+  skip: Scalars['Int'];
+}
+
+export interface FetchMyNotificationsInput {
   id: Scalars['String'];
   includeDone?: InputMaybe<Scalars['Boolean']>;
 }
@@ -46,9 +62,16 @@ export interface FetchPlayerInput {
   id: Scalars['String'];
 }
 
+export interface FriendRequestsPlayerInput {
+  friendRequests: Array<InputMaybe<Scalars['String']>>;
+  friends: Array<InputMaybe<Scalars['String']>>;
+  id: Scalars['String'];
+}
+
 export interface Game {
   __typename?: 'Game';
   createdAt: Scalars['String'];
+  creator: Player;
   id?: Maybe<Scalars['String']>;
   teamOne: Array<Player>;
   teamOneScore: Scalars['Int'];
@@ -63,11 +86,18 @@ export interface MarkNotificationAsDoneInput {
 
 export interface Mutation {
   __typename?: 'Mutation';
+  acceptFriendRequest?: Maybe<Scalars['String']>;
   createGame?: Maybe<Game>;
   createNotification?: Maybe<Notification>;
   createPlayer?: Maybe<Player>;
   markNotificationAsDone?: Maybe<Notification>;
+  rejectFriendRequest?: Maybe<Scalars['String']>;
   updatePlayer?: Maybe<Player>;
+}
+
+
+export interface MutationAcceptFriendRequestArgs {
+  input: AcceptFriendRequestInput;
 }
 
 
@@ -91,6 +121,11 @@ export interface MutationMarkNotificationAsDoneArgs {
 }
 
 
+export interface MutationRejectFriendRequestArgs {
+  input: RejectFriendRequestInput;
+}
+
+
 export interface MutationUpdatePlayerArgs {
   input: UpdatePlayerInput;
 }
@@ -102,7 +137,7 @@ export interface Notification {
   from: Player;
   id?: Maybe<Scalars['String']>;
   notificationType: NotificationType;
-  resourceUrl?: Maybe<Scalars['String']>;
+  resourceId?: Maybe<Scalars['String']>;
   to: Player;
 }
 
@@ -129,10 +164,24 @@ export interface Player {
   updatedAt: Scalars['String'];
 }
 
+export interface PlayerStat {
+  __typename?: 'PlayerStat';
+  gamesLost: Scalars['Int'];
+  gamesPlayed: Scalars['Int'];
+  gamesTied: Scalars['Int'];
+  gamesWon: Scalars['Int'];
+  goalsConceded: Scalars['Int'];
+  goalsScored: Scalars['Int'];
+  playerId: Scalars['String'];
+  playerScore: Scalars['Int'];
+}
+
 export interface Query {
   __typename?: 'Query';
   fetchGame?: Maybe<Game>;
-  fetchNotification?: Maybe<Notification>;
+  fetchLeaderboard: Array<Maybe<PlayerStat>>;
+  fetchMyGames: Array<Maybe<Game>>;
+  fetchMyNotifications: Array<Maybe<Notification>>;
   fetchPlayer?: Maybe<Player>;
   fetchPlayerByEmail?: Maybe<Player>;
   ping: Scalars['String'];
@@ -146,23 +195,38 @@ export interface QueryFetchGameArgs {
 }
 
 
-export interface QueryFetchNotificationArgs {
-  input: FetchNotificationInput;
+export interface QueryFetchLeaderboardArgs {
+  input: FetchLeaderboardInput;
+}
+
+
+export interface QueryFetchMyGamesArgs {
+  input: FetchMyGamesInput;
+}
+
+
+export interface QueryFetchMyNotificationsArgs {
+  input: FetchMyNotificationsInput;
 }
 
 
 export interface QueryFetchPlayerArgs {
-  input?: InputMaybe<FetchPlayerInput>;
+  input: FetchPlayerInput;
 }
 
 
 export interface QuerySearchPlayersByTagArgs {
-  input?: InputMaybe<SearchPlayersByTagInput>;
+  input: SearchPlayersByTagInput;
 }
 
 
 export interface QuerySendFriendRequestArgs {
   input: SendFriendRequestInput;
+}
+
+export interface RejectFriendRequestInput {
+  from: FriendRequestsPlayerInput;
+  to: FriendRequestsPlayerInput;
 }
 
 export interface SearchPlayersByTagInput {
@@ -179,5 +243,6 @@ export interface UpdatePlayerInput {
   friends?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   id: Scalars['String'];
   nickname?: InputMaybe<Scalars['String']>;
+  picture?: InputMaybe<Scalars['String']>;
   tag?: InputMaybe<Scalars['String']>;
 }

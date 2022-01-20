@@ -2,13 +2,11 @@ import { UnstyledButton } from "@mantine/core";
 import { forwardRef } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
 
-type MenuButtonProps = {
-  numberOfNotifications: number;
-};
+type MenuButtonProps = {};
 
 // eslint-disable-next-line react/display-name
 export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(
-  ({ numberOfNotifications, ...others }: MenuButtonProps, ref) => (
+  ({ ...buttonProps }: MenuButtonProps, ref) => (
     <UnstyledButton
       ref={ref}
       sx={(theme) => ({
@@ -23,9 +21,8 @@ export const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(
           backgroundColor: theme.colors.dark[8],
         },
       })}
-      {...others}
+      {...buttonProps}
     >
-      {numberOfNotifications}
       <IoMdNotificationsOutline />
     </UnstyledButton>
   )

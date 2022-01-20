@@ -1,50 +1,106 @@
-import { Badge, Box, Menu } from "@mantine/core";
 import React, { FC } from "react";
+import {
+  Box,
+  Modal,
+  Grid,
+  useMantineTheme,
+  MediaQuery,
+  Container,
+  Space,
+} from "@mantine/core";
+import { GiThreeFriends } from "react-icons/gi";
+import { BiFootball } from "react-icons/bi";
 import { IoMdNotificationsOutline } from "react-icons/io";
 
 import { useNotificationsContext } from "../../context";
-import { MenuButton } from "./MenuButton";
-import MenuItem from "./MenuItem";
+import { NotificationType } from "../../types";
+import { GameRecorded } from "./GameRecorded";
+import { FriendRequest } from "./FriendRequest";
 
 export type NotificationsProps = {};
 
 export const Notifications: FC<NotificationsProps> = (props) => {
-  const { notifications } = useNotificationsContext();
+  const { notifications, modalOpen, setModalOpen } = useNotificationsContext();
+  const theme = useMantineTheme();
+  if (notifications.length === 0) return null;
+
+  const renderNotificationIcon = (notificationType: NotificationType) => {
+    switch (notificationType) {
+      case "FRIEND_REQUEST":
+        return (
+          <GiThreeFriends
+            size={24}
+            style={{
+              fill: theme.colors.gray[3],
+            }}
+          />
+        );
+      case "GAME_RECORDED":
+        return (
+          <BiFootball
+            size={24}
+            style={{
+              fill: theme.colors.gray[3],
+            }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <Box
-      sx={() => ({
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "flex-end",
-      })}
+    <Modal
+      opened={modalOpen}
+      onClose={() => setModalOpen(false)}
+      title="Notifications"
+      radius="sm"
     >
-      <Menu
-        trigger="hover"
-        size="sm"
-        menuButtonLabel="Notifications"
-        radius="sm"
-        withArrow
-        control={<MenuButton numberOfNotifications={notifications.length} />}
+      <Box
+        sx={(theme) => ({
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        })}
       >
-        <Menu.Label
-          sx={(theme) => ({
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          })}
-        >
-          <IoMdNotificationsOutline />
-          {`${notifications.length} new Notification${
-            notifications.length === 1 ? "" : "s"
-          }`}
-        </Menu.Label>
-        {notifications.map((notification) => (
-          <Menu.Item key={notification.id}>
-            <MenuItem notification={notification} />
-          </Menu.Item>
-        ))}
-      </Menu>
-    </Box>
+        <IoMdNotificationsOutline size={24} fill={theme.colors.green[7]} />
+        {`${notifications.length} new notification${
+          notifications.length === 1 ? "" : "s"
+        }`}
+      </Box>
+
+      <Space h={16} />
+
+      {notifications.map((notification, index) => {
+        return (
+          <Box
+            key={notification.id}
+            sx={(theme) => ({
+              backgroundColor: theme.colors.primaryDark[0],
+              marginBottom:
+                index < notifications.length - 1 ? theme.spacing.md : 0,
+              borderRadius: theme.radius.sm,
+            })}
+          >
+            <Container>
+              <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+                <Grid.Col span={1}>
+                  {renderNotificationIcon(notification.notificationType)}
+                </Grid.Col>
+              </MediaQuery>
+              <Grid.Col span={11}>
+                {notification.notificationType === "GAME_RECORDED" ? (
+                  <GameRecorded notification={notification} />
+                ) : null}
+                {notification.notificationType === "FRIEND_REQUEST" && (
+                  <FriendRequest notification={notification} />
+                )}
+              </Grid.Col>
+            </Container>
+          </Box>
+        );
+      })}
+    </Modal>
   );
 };
 

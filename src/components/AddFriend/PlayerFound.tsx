@@ -1,5 +1,14 @@
 import React, { FC, useState } from "react";
-import { Avatar, Button, Card, Group, LoadingOverlay } from "@mantine/core";
+import {
+  Avatar,
+  Button,
+  Card,
+  Collapse,
+  Group,
+  Image,
+  LoadingOverlay,
+  Space,
+} from "@mantine/core";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useNotifications } from "@mantine/notifications";
 import { useApolloClient } from "@apollo/client";
@@ -9,7 +18,6 @@ import { MdOutlineDangerous } from "react-icons/md";
 import { FaRegHandshake } from "react-icons/fa";
 
 import { Text } from "../Text";
-import type { Player } from "../../types";
 import { SEND_FRIEND_REQUEST } from "../../gql";
 import { usePlayerContext, useSearchPlayerContext } from "../../context";
 
@@ -23,6 +31,7 @@ export const PlayerFound: FC<PlayerFoundProps> = ({ close }) => {
   const notifications = useNotifications();
   const client = useApolloClient();
   const { found, reset } = useSearchPlayerContext();
+  const [memeOpen, setMemeOpen] = useState(false);
   const { picture, nickname, id, friendRequests } = found || {};
 
   const sendRequest = async () => {
@@ -41,7 +50,7 @@ export const PlayerFound: FC<PlayerFoundProps> = ({ close }) => {
         message: "You Friend request has been sent!",
         icon: <BsCheck2All />,
         color: "green",
-        autoClose: 3000,
+        autoClose: 5000,
       });
       reset();
       close();
@@ -51,7 +60,7 @@ export const PlayerFound: FC<PlayerFoundProps> = ({ close }) => {
         message: "You Friend request failed, try again!",
         icon: <MdOutlineDangerous />,
         color: "red",
-        autoClose: 3000,
+        autoClose: 5000,
       });
     }
   };
@@ -64,6 +73,7 @@ export const PlayerFound: FC<PlayerFoundProps> = ({ close }) => {
   const alreadyReceived = Boolean(
     player?.friendRequests.filter((p) => p?.id === id).length
   );
+  const selfAdd = Boolean(found?.id === player?.id);
 
   const SentButton = () => (
     <Button
@@ -101,6 +111,18 @@ export const PlayerFound: FC<PlayerFoundProps> = ({ close }) => {
     </Button>
   );
 
+  const SelfButton = () => (
+    <Button
+      variant="filled"
+      leftIcon={!memeOpen ? <AiOutlinePlus /> : null}
+      size="sm"
+      color="green"
+      onClick={() => setMemeOpen(!memeOpen)}
+    >
+      {!memeOpen ? "Okay!" : "(╯°□°）╯︵ ┻━┻"}
+    </Button>
+  );
+
   return (
     <>
       <LoadingOverlay visible={loading} />
@@ -117,11 +139,20 @@ export const PlayerFound: FC<PlayerFoundProps> = ({ close }) => {
               <SentButton />
             ) : alreadyReceived ? (
               <ReceivedButton />
+            ) : selfAdd ? (
+              <SelfButton />
             ) : (
               <AddButton />
             )}
           </Group>
         </Group>
+        <Collapse in={memeOpen}>
+          <Space h={16} />
+          <Image
+            src="https://media.giphy.com/media/7nFmRxSw6AmyI/giphy.gif"
+            alt="Add yourself as a friend"
+          />
+        </Collapse>
       </Card>
     </>
   );

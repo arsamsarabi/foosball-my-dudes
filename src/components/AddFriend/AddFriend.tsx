@@ -13,12 +13,12 @@ import { FiSave } from "react-icons/fi";
 import { PlayerFound } from "./PlayerFound";
 import { useSearchPlayerContext } from "../../context";
 
-export type AddFriendModalProps = {
+export type AddFriendProps = {
   open: boolean;
   toggle: () => void;
 };
 
-export const AddFriendModal: FC<AddFriendModalProps> = ({ open, toggle }) => {
+export const AddFriend: FC<AddFriendProps> = ({ open, toggle }) => {
   const [value, setValue] = useState("Strong Master Ogre");
   const { found, reset, searchPlayerByTag, loading } = useSearchPlayerContext();
 
@@ -35,6 +35,7 @@ export const AddFriendModal: FC<AddFriendModalProps> = ({ open, toggle }) => {
         toggle();
       }}
       title="Find a player"
+      radius="sm"
     >
       <LoadingOverlay visible={loading} />
       <Group direction="column">
@@ -69,4 +70,4 @@ export const AddFriendModal: FC<AddFriendModalProps> = ({ open, toggle }) => {
   );
 };
 
-export default AddFriendModal;
+export default AddFriend;

@@ -6,27 +6,33 @@ import React, {
   FC,
   useEffect,
 } from "react";
+import { v4 as uuidv4 } from "uuid";
 
+import { useFetchMyNotifications } from "../hooks";
 import { usePlayerContext } from "./PlayerContext";
 import type { Notification, Player } from "../types";
 
 interface NotificationsState {
   notifications: Array<Notification>;
+  modalOpen: boolean;
 }
 
 type NotificationsContext = NotificationsState & {
-  addNotification: (notification: Notification) => void;
+  addNotifications: (notification: Array<Notification>) => void;
   removeNotification: (id: string) => void;
+  setModalOpen: (val: boolean) => void;
   reset: () => void;
 };
 
 const initialState: NotificationsState = {
   notifications: [],
+  modalOpen: false,
 };
 
 const NotificationsContext = createContext<NotificationsContext>({
   ...initialState,
-  addNotification: () => {},
+  setModalOpen: () => {},
+  addNotifications: () => {},
   removeNotification: () => {},
   reset: () => {},
 });
@@ -38,10 +44,19 @@ interface NotificationsProviderProps {
 const NotificationsProvider: FC<NotificationsProviderProps> = ({
   children,
 }) => {
+  const { fetch } = useFetchMyNotifications();
   const [state, setState] = useState<NotificationsState>(initialState);
   const { player } = usePlayerContext();
 
   useEffect(() => {
+    async function fetchRemoteNotifications() {
+      await fetch(addNotifications);
+    }
+
+    if (player) {
+      fetchRemoteNotifications();
+    }
+
     if (player && player.friendRequests.length) {
       const { friendRequests } = player;
       let notifications: Array<Notification> = [];
@@ -49,6 +64,7 @@ const NotificationsProvider: FC<NotificationsProviderProps> = ({
       friendRequests.forEach((fr?: Player) => {
         if (fr) {
           notifications.push({
+            id: uuidv4(),
             context: "Player",
             done: false,
             from: fr,
@@ -65,18 +81,21 @@ const NotificationsProvider: FC<NotificationsProviderProps> = ({
     }
   }, [player]);
 
+  const addNotifications = (newNotifications: Array<Notification>) =>
+    setState({
+      ...state,
+      notifications: [...state.notifications, ...newNotifications],
+    });
+
   const value: NotificationsContext = {
     ...state,
-    addNotification: (notification) =>
-      setState({
-        ...state,
-        notifications: [...state.notifications, notification],
-      }),
+    addNotifications,
     removeNotification: (id) =>
       setState({
         ...state,
         notifications: state.notifications.filter((n) => n.id !== id),
       }),
+    setModalOpen: (val) => setState({ ...state, modalOpen: val }),
     reset: () => setState(initialState),
   };
 

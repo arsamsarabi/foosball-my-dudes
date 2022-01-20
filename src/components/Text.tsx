@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { AllHTMLAttributes, FC } from "react";
 import { Text, Title } from "@mantine/core";
 import type { TextProps, TitleProps } from "@mantine/core";
 import { useMantineTheme } from "@mantine/core";

@@ -1,5 +1,5 @@
-import React, { FC, useState } from "react";
-import { Grid } from "@mantine/core";
+import React, { FC, useEffect, useState } from "react";
+import { Box, Grid, Group } from "@mantine/core";
 import {
   AppShell,
   Burger,
@@ -8,15 +8,36 @@ import {
   Navbar,
   useMantineTheme,
 } from "@mantine/core";
+import { useRouter } from "next/router";
+import { useViewportSize } from "@mantine/hooks";
 
-import { Header as AppHeader } from "../Header";
+import { NotificationsButton } from "../NotificationsButton";
+import { Notifications } from "../Notifications";
 import { Nav } from "../Nav";
+import { Logo } from "../Logo";
+import { Title } from "../Text";
 
 export type LayoutProps = {};
 
 export const Layout: FC<LayoutProps> = ({ children }) => {
   const [opened, setOpened] = useState(false);
   const theme = useMantineTheme();
+  const router = useRouter();
+  const { width } = useViewportSize();
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setOpened(false);
+    };
+
+    router.events.on("routeChangeComplete", handleRouteChange);
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method:
+    return () => {
+      router.events.off("routeChangeComplete", handleRouteChange);
+    };
+  }, []);
 
   return (
     <AppShell
@@ -33,21 +54,56 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
         </Navbar>
       }
       header={
-        <Header height={72} padding={4}>
-          <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-            <Burger
-              opened={opened}
-              onClick={() => setOpened((o) => !o)}
-              size="sm"
-              color={theme.colors.gray[6]}
-              mr="xl"
-            />
-          </MediaQuery>
-          <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-            <Grid.Col span={12}>
-              <AppHeader />
-            </Grid.Col>
-          </MediaQuery>
+        <Header height={width < 768 ? 64 : 88} padding={4}>
+          <Box
+            sx={(theme) => ({
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              height: "100%",
+            })}
+          >
+            <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+              <Grid columns={12}>
+                <Grid.Col span={2} offset={1}>
+                  <Burger
+                    opened={opened}
+                    onClick={() => setOpened((o) => !o)}
+                    size="sm"
+                    color={theme.colors.gray[6]}
+                    mr="xl"
+                  />
+                </Grid.Col>
+                <Grid.Col span={9}>
+                  <Title order={4} ml={12}>
+                    Foosball My Dudes
+                  </Title>
+                </Grid.Col>
+              </Grid>
+            </MediaQuery>
+            <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+              <Group>
+                <Grid.Col span={1}>
+                  <Logo />
+                </Grid.Col>
+                <Grid.Col span={8}>
+                  <Title order={4} ml={12}>
+                    Foosball My Dudes
+                  </Title>
+                </Grid.Col>
+              </Group>
+            </MediaQuery>
+            <Box
+              sx={() => ({
+                marginLeft: "auto",
+              })}
+            >
+              <Grid.Col span={2}>
+                <NotificationsButton />
+                <Notifications />
+              </Grid.Col>
+            </Box>
+          </Box>
         </Header>
       }
       styles={(theme) => ({

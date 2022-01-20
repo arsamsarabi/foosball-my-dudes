@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { Space, Box } from "@mantine/core";
+import { Space, Box, Avatar } from "@mantine/core";
 import { RiLogoutCircleLine } from "react-icons/ri";
 import { VscDebugStart } from "react-icons/vsc";
 import { Button } from "@mantine/core";
@@ -9,13 +9,21 @@ import { MdHistoryToggleOff, MdOutlineLeaderboard } from "react-icons/md";
 
 import { routes } from "../../config";
 import { NavLink } from "./NavLink";
-import { AddFriendModal } from "../AddFriendModal";
+import { AddFriend } from "../AddFriend";
+import { usePlayerContext } from "../../context";
+import { NewGame } from "../NewGame";
 
 export const Nav: FC = () => {
-  const [openAddFriendModal, setOpenAddFriendModal] = useState(false);
+  const [openAddFriend, setOpenAddFriend] = useState(false);
+  const [openNewGame, setOpenNewGame] = useState(false);
+  const { player } = usePlayerContext();
+  const { picture, nickname } = player || {};
+
   return (
     <>
       <NavBox>
+        <Avatar src={picture} alt={nickname} size={124} />
+        <Space h={16} />
         <NavLink to={routes.profile} leftIcon={<CgProfile />} variant="filled">
           Profile
         </NavLink>
@@ -37,7 +45,7 @@ export const Nav: FC = () => {
         </NavLink>
         <Space h={16} />
         <Button
-          onClick={() => {}}
+          onClick={() => setOpenNewGame(true)}
           color="primary"
           leftIcon={<VscDebugStart />}
           variant="outline"
@@ -47,7 +55,7 @@ export const Nav: FC = () => {
         </Button>
         <Space h={16} />
         <Button
-          onClick={() => setOpenAddFriendModal(true)}
+          onClick={() => setOpenAddFriend(true)}
           color="primary"
           leftIcon={<FaUserFriends />}
           variant="outline"
@@ -65,10 +73,11 @@ export const Nav: FC = () => {
           Logout
         </NavLink>
       </NavBox>
-      <AddFriendModal
-        open={openAddFriendModal}
-        toggle={() => setOpenAddFriendModal(!open)}
+      <AddFriend
+        open={openAddFriend}
+        toggle={() => setOpenAddFriend(!openAddFriend)}
       />
+      <NewGame open={openNewGame} toggle={() => setOpenNewGame(!openNewGame)} />
     </>
   );
 };
@@ -83,7 +92,7 @@ export const NavBox: FC = ({ children }) => {
         alignItems: "center",
         height: "100%",
 
-        "& > *:nth-child(6)": {
+        "& > *:nth-child(8)": {
           marginTop: "auto",
         },
       })}
