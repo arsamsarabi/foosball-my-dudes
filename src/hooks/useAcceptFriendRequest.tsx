@@ -20,8 +20,6 @@ export const useAcceptFriendRequest = ({ from, to, notificationId }: Props) => {
   const notifications = useNotifications();
   const { removeNotification } = useNotificationsContext();
 
-  console.log(from, to, notificationId);
-
   const mappedFrom: FriendRequestsPlayerInput = {
     id: String(from.id),
     friends: from.friends.map((f) => f?.id),

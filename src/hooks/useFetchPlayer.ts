@@ -6,12 +6,6 @@ import { FETCH_PLAYER_BY_SUB } from "../gql";
 import { usePlayerContext } from "../context";
 import { Player } from "../types";
 
-type UseFetchPlayer = () => {
-  loading: boolean;
-  error: String | null;
-  player: Player | null;
-};
-
 export const useFetchPlayer = () => {
   const client = useApolloClient();
   const { user, error, isLoading } = useUser();

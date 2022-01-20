@@ -18,6 +18,7 @@ export const NotificationsButton: FC = () => {
         display: "flex",
         borderRadius: theme.radius.sm,
         transition: "0.3s ease-in-out all",
+        marginLeft: "auto",
 
         "&:hover": {
           backgroundColor: theme.colors.dark[8],

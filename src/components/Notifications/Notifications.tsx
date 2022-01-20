@@ -22,6 +22,9 @@ export type NotificationsProps = {};
 export const Notifications: FC<NotificationsProps> = (props) => {
   const { notifications, modalOpen, setModalOpen } = useNotificationsContext();
   const theme = useMantineTheme();
+
+  console.log(notifications);
+
   if (notifications.length === 0) return null;
 
   const renderNotificationIcon = (notificationType: NotificationType) => {

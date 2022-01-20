@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { Space, Box, Avatar } from "@mantine/core";
+import { Space, Box, Avatar, UnstyledButton } from "@mantine/core";
 import { RiLogoutCircleLine } from "react-icons/ri";
 import { VscDebugStart } from "react-icons/vsc";
 import { Button } from "@mantine/core";
@@ -18,6 +18,17 @@ export const Nav: FC = () => {
   const [openNewGame, setOpenNewGame] = useState(false);
   const { player } = usePlayerContext();
   const { picture, nickname } = player || {};
+
+  const clearAllCookies = () => {
+    let cookies = document.cookie.split(";");
+
+    for (let i = 0; i < cookies.length; i++) {
+      let cookie = cookies[i];
+      let eqPos = cookie.indexOf("=");
+      let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
+  };
 
   return (
     <>
@@ -70,7 +81,7 @@ export const Nav: FC = () => {
           leftIcon={<RiLogoutCircleLine />}
           variant="subtle"
         >
-          Logout
+          <UnstyledButton onClick={clearAllCookies}>Logout</UnstyledButton>
         </NavLink>
       </NavBox>
       <AddFriend

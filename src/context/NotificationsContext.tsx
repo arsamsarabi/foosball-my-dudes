@@ -44,59 +44,84 @@ interface NotificationsProviderProps {
 const NotificationsProvider: FC<NotificationsProviderProps> = ({
   children,
 }) => {
-  const { fetch } = useFetchMyNotifications();
+  const { fetch, loading, remoteNotifications } = useFetchMyNotifications();
   const [state, setState] = useState<NotificationsState>(initialState);
   const { player } = usePlayerContext();
 
   useEffect(() => {
     async function fetchRemoteNotifications() {
-      await fetch(addNotifications);
+      await fetch();
     }
 
     if (player) {
       fetchRemoteNotifications();
     }
+  }, [player]);
 
+  useEffect(() => {
     if (player && player.friendRequests.length) {
       const { friendRequests } = player;
       let notifications: Array<Notification> = [];
 
-      friendRequests.forEach((fr?: Player) => {
-        if (fr) {
+      if (loading) return;
+
+      friendRequests.forEach((fRequest?: Player) => {
+        if (
+          fRequest &&
+          state.notifications
+            .filter((notif) => notif.notificationType === "FRIEND_REQUEST")
+            .every((notifi) => notifi.from.id !== fRequest.id)
+        ) {
           notifications.push({
             id: uuidv4(),
             context: "Player",
             done: false,
-            from: fr,
+            from: fRequest,
             to: player,
             notificationType: "FRIEND_REQUEST",
           });
         }
       });
 
+      const _notifications = [
+        ...state.notifications,
+        ...notifications,
+        ...remoteNotifications,
+      ];
+
       setState({
         ...state,
-        notifications: [...state.notifications, ...notifications],
+        notifications: [...new Set(_notifications)],
       });
     }
-  }, [player]);
+  }, [player, loading, remoteNotifications]);
 
-  const addNotifications = (newNotifications: Array<Notification>) =>
+  const addNotifications = (newNotifications: Array<Notification>) => {
+    const n = [...state.notifications, ...newNotifications];
+
+    console.log("-----------------addNotification-----------------");
+    console.log(state.notifications);
+    console.log(n);
+
     setState({
       ...state,
-      notifications: [...state.notifications, ...newNotifications],
+      notifications: n,
     });
+  };
 
   const value: NotificationsContext = {
     ...state,
     addNotifications,
-    removeNotification: (id) =>
+    removeNotification: (id) => {
       setState({
         ...state,
         notifications: state.notifications.filter((n) => n.id !== id),
-      }),
+      });
+    },
     setModalOpen: (val) => setState({ ...state, modalOpen: val }),
-    reset: () => setState(initialState),
+    reset: () => {
+      setState(initialState);
+    },
   };
 
   return (

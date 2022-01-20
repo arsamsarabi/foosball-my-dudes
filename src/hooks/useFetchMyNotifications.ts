@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import { useUser } from "@auth0/nextjs-auth0";
 
@@ -15,7 +15,7 @@ export const useFetchMyNotifications = () => {
   const { player } = usePlayerContext();
   const { user, isLoading, error } = useUser();
 
-  const fetch = async (cb: (notification: Array<Notification>) => void) => {
+  const fetch = async () => {
     if (!user || isLoading || error) {
       throw new Error("User not found");
     }
@@ -31,7 +31,6 @@ export const useFetchMyNotifications = () => {
     });
     setLoading(loading);
     setRemoteNotifications(fetchMyNotifications);
-    cb(fetchMyNotifications);
   };
 
   return { remoteNotifications, fetch, loading };

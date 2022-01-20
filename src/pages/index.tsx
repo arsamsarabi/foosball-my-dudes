@@ -3,7 +3,7 @@ import { useUser } from "@auth0/nextjs-auth0";
 import { useRouter } from "next/router";
 import { IoIosLogIn } from "react-icons/io";
 import Link from "next/link";
-import { Container, Button, Box } from "@mantine/core";
+import { Container, Button, Box, Space, Image } from "@mantine/core";
 
 import { routes } from "../config";
 import { Loading } from "../components";
@@ -23,6 +23,7 @@ export const Home: FC = () => {
           alignItems: "center",
           justifyContent: "center",
           height: "50%",
+          padding: 0 + theme.spacing.lg,
         })}
       >
         <Link href={routes.login} passHref>
@@ -35,6 +36,12 @@ export const Home: FC = () => {
             Login
           </Button>
         </Link>
+        <Space h={32} />
+        <Image
+          src="https://media.giphy.com/media/YpTY9LCVbHSWVezitp/giphy.gif"
+          alt="meme"
+          radius="md"
+        />
       </Box>
     );
 
