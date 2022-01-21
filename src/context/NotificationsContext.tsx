@@ -58,7 +58,6 @@ const NotificationsProvider: FC<NotificationsProviderProps> = ({
   const fetch = async () => {
     const {
       data: { fetchMyNotifications },
-      loading,
     } = await client.query({
       query: FETCH_MY_NOTIFICATIONS,
       variables: {
@@ -68,7 +67,6 @@ const NotificationsProvider: FC<NotificationsProviderProps> = ({
     setState({
       ...state,
       notifications: [...state.notifications, ...fetchMyNotifications],
-      loading,
     });
   };
 
