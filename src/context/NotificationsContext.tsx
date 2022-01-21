@@ -20,7 +20,6 @@ interface NotificationsState {
 }
 
 type NotificationsContext = NotificationsState & {
-  fetch: () => Promise<void>;
   addNotifications: (notification: Array<Notification>) => void;
   addFriendRequests: (friendRequests: Array<Player>) => void;
   removeNotification: (id: string) => void;
@@ -36,7 +35,6 @@ const initialState: NotificationsState = {
 
 const NotificationsContext = createContext<NotificationsContext>({
   ...initialState,
-  fetch: () => Promise.resolve(),
   setModalOpen: () => {},
   addNotifications: () => {},
   addFriendRequests: () => {},
@@ -55,30 +53,15 @@ const NotificationsProvider: FC<NotificationsProviderProps> = ({
   const [state, setState] = useState<NotificationsState>(initialState);
   const { player } = usePlayerContext();
 
-  const fetch = async () => {
-    const {
-      data: { fetchMyNotifications },
-    } = await client.query({
-      query: FETCH_MY_NOTIFICATIONS,
-      variables: {
-        input: { id: player?.id },
-      },
-    });
-    setState({
-      ...state,
-      notifications: [...state.notifications, ...fetchMyNotifications],
-    });
-  };
-
   const value: NotificationsContext = {
     ...state,
-    fetch,
     addNotifications: (newNotifications: Array<Notification>) => {
       setState({
         ...state,
         notifications: [...state.notifications, ...newNotifications],
       });
     },
+
     addFriendRequests: (friendRequests: Array<Player>) => {
       let _fr: Array<Notification> = [];
 

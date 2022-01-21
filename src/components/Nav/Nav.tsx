@@ -13,7 +13,6 @@ import { NavLink } from "./NavLink";
 import { AddFriend } from "../AddFriend";
 import { usePlayerContext } from "../../context";
 import { NewGame } from "../NewGame";
-import { convertCompilerOptionsFromJson } from "typescript";
 
 export const Nav: FC = () => {
   const [openAddFriend, setOpenAddFriend] = useState(false);

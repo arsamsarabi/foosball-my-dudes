@@ -1,46 +1,35 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useApolloClient } from "@apollo/client";
-import { useUser } from "@auth0/nextjs-auth0";
+import { GraphQLError } from "graphql";
 
-import { FETCH_PLAYER_BY_SUB } from "../gql";
-import { useNotificationsContext, usePlayerContext } from "../context";
+import { FETCH_PLAYER_BY_EMAIL } from "../gql";
 import { Player } from "../types";
 
 export const useFetchPlayer = () => {
   const client = useApolloClient();
-  const { user, error, isLoading } = useUser();
-  const [loading, setLoading] = useState<boolean>(true);
-  const { player, setPlayer } = usePlayerContext();
-  const { fetch: fetchNotifications, addFriendRequests } =
-    useNotificationsContext();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [player, setPlayer] = useState<Player | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchPlayer() {
-      setLoading(true);
+  const fetchPlayer = async () => {
+    setLoading(true);
+
+    try {
       const {
         data: { fetchPlayerByEmail },
-        loading,
       } = await client.query({
-        query: FETCH_PLAYER_BY_SUB,
+        query: FETCH_PLAYER_BY_EMAIL,
       });
 
       setPlayer(fetchPlayerByEmail);
-      addFriendRequests(fetchPlayerByEmail.friendRequests);
-      await fetchNotifications();
-      setLoading(loading);
+    } catch (error) {
+      setError((error as GraphQLError).message);
     }
 
-    if (user && !isLoading && !error) {
-      fetchPlayer();
-    }
-  }, [user, isLoading, error]);
+    setLoading(false);
 
-  if (isLoading) return { loading: isLoading, error: "fetching user ..." };
+    return { loading, player, error };
+  };
 
-  if (error)
-    return { loading: false, error: error.message || "Error fetching user." };
-
-  if (!user) return { loading: false, error: "User not found." };
-
-  return { loading, player };
+  return { fetchPlayer };
 };

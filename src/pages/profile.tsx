@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0";
 import {
   Container,
@@ -19,17 +19,27 @@ import {
   Loading,
   ChangeAvatar,
 } from "../components";
-import { useFetchPlayer } from "../hooks";
+import { useFetchPlayer, useProfilePageData } from "../hooks";
+import { usePlayerContext } from "../context";
 
 export const Profile: FC = () => {
-  const { user } = useUser();
-  const { player, loading, error } = useFetchPlayer();
+  const { user, isLoading, error } = useUser();
   const theme = useMantineTheme();
   const [modalOpen, setModalOpen] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
-  if (loading) return <Loading />;
-  if (error || !player) return <Text>{error}</Text>;
+  const { fetch } = useProfilePageData();
+  const { player } = usePlayerContext();
+
+  useEffect(() => {
+    async function fetchData() {
+      await fetch();
+    }
+  }, [user]);
+
+  if (isLoading) return <Loading />;
+  if (error) return "Error fetching user.";
+  if (!user) return "User not found.";
 
   const lastSeen = user ? user["https://arsam.dev/last_seen"] : "Never";
 

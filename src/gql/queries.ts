@@ -15,7 +15,7 @@ export const FETCH_PLAYER_BY_ID = gql`
   }
 `;
 
-export const FETCH_PLAYER_BY_SUB = gql`
+export const FETCH_PLAYER_BY_EMAIL = gql`
   ${PLAYER_FIELDS_WITH_FRIENDS}
 
   query fetchPlayerByEmail {
