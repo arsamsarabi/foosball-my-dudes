@@ -30,9 +30,7 @@ export type GetUserAppMetadata = (args: {
 }) => Promise<{ [key: string]: unknown }>;
 
 export const getUserAppMetadata: GetUserAppMetadata = async ({ userId }) => {
-  console.log(userId, "getUserAppMetadata");
   const response = await client.getUser({ id: userId });
-  console.log(response, "response");
   return response.app_metadata || {};
 };
 
