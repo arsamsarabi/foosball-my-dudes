@@ -80,8 +80,9 @@ export const Nav: FC = () => {
           color="red"
           leftIcon={<RiLogoutCircleLine />}
           variant="subtle"
+          onButtonClick={clearAllCookies}
         >
-          <UnstyledButton onClick={clearAllCookies}>Logout</UnstyledButton>
+          Logout
         </NavLink>
       </NavBox>
       <AddFriend

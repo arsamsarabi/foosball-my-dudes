@@ -17,7 +17,7 @@ import { Notifications } from "../Notifications";
 import { Nav } from "../Nav";
 import { Logo } from "../Logo";
 import { Title } from "../Text";
-import { useNotificationsContext } from "../../context";
+import { useNotificationsContext, usePlayerContext } from "../../context";
 
 export type LayoutProps = {};
 
@@ -27,7 +27,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
   const theme = useMantineTheme();
   const router = useRouter();
   const { width } = useViewportSize();
-  const { notifications } = useNotificationsContext();
+  const { player } = usePlayerContext();
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -50,7 +50,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
       navbarOffsetBreakpoint="sm"
       fixed
       navbar={
-        user ? (
+        user && player ? (
           <Navbar
             padding="lg"
             hiddenBreakpoint="sm"

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, MouseEvent } from "react";
 import Link from "next/link";
 
 import {
@@ -10,12 +10,25 @@ import {
 
 export type NavLinkProps = ButtonProps<any> & {
   to: string;
+  onButtonClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 };
 
-export const NavLink: FC<NavLinkProps> = ({ to, children, ...rest }) => {
+export const NavLink: FC<NavLinkProps> = ({
+  to,
+  children,
+  onButtonClick,
+  ...rest
+}) => {
   return (
     <Link href={to} passHref>
-      <Button component="a" fullWidth {...rest}>
+      <Button
+        component="a"
+        fullWidth
+        {...rest}
+        onClick={(e: MouseEvent<HTMLButtonElement>) => {
+          onButtonClick && onButtonClick(e);
+        }}
+      >
         {children}
       </Button>
     </Link>
