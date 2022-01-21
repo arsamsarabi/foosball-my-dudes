@@ -11,7 +11,8 @@ export const useFetchPlayer = () => {
   const { user, error, isLoading } = useUser();
   const [loading, setLoading] = useState<boolean>(true);
   const { player, setPlayer } = usePlayerContext();
-  const { addFriendRequests } = useNotificationsContext();
+  const { fetch: fetchNotifications, addFriendRequests } =
+    useNotificationsContext();
 
   useEffect(() => {
     async function fetchPlayer() {
@@ -25,6 +26,7 @@ export const useFetchPlayer = () => {
 
       setPlayer(fetchPlayerByEmail);
       addFriendRequests(fetchPlayerByEmail.friendRequests);
+      await fetchNotifications();
       setLoading(loading);
     }
 

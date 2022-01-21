@@ -6,28 +6,25 @@ import { Button } from "@mantine/core";
 import { FaUserFriends } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { MdHistoryToggleOff, MdOutlineLeaderboard } from "react-icons/md";
+import { useCookies } from "react-cookie";
 
 import { routes } from "../../config";
 import { NavLink } from "./NavLink";
 import { AddFriend } from "../AddFriend";
 import { usePlayerContext } from "../../context";
 import { NewGame } from "../NewGame";
+import { convertCompilerOptionsFromJson } from "typescript";
 
 export const Nav: FC = () => {
   const [openAddFriend, setOpenAddFriend] = useState(false);
   const [openNewGame, setOpenNewGame] = useState(false);
   const { player } = usePlayerContext();
+  const [cookies, setCookie, removeCookie] = useCookies(["appSession"]);
   const { picture, nickname } = player || {};
 
   const clearAllCookies = () => {
-    let cookies = document.cookie.split(";");
-
-    for (let i = 0; i < cookies.length; i++) {
-      let cookie = cookies[i];
-      let eqPos = cookie.indexOf("=");
-      let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    }
+    setCookie("appSession", "", { path: "/" });
+    removeCookie("appSession");
   };
 
   return (

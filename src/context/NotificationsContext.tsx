@@ -8,16 +8,19 @@ import React, {
 } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-import { useFetchMyNotifications } from "../hooks";
 import { usePlayerContext } from "./PlayerContext";
 import type { Notification, Player } from "../types";
+import { FETCH_MY_NOTIFICATIONS } from "../gql";
+import { useApolloClient } from "@apollo/client";
 
 interface NotificationsState {
   notifications: Array<Notification>;
   modalOpen: boolean;
+  loading: boolean;
 }
 
 type NotificationsContext = NotificationsState & {
+  fetch: () => Promise<void>;
   addNotifications: (notification: Array<Notification>) => void;
   addFriendRequests: (friendRequests: Array<Player>) => void;
   removeNotification: (id: string) => void;
@@ -28,10 +31,12 @@ type NotificationsContext = NotificationsState & {
 const initialState: NotificationsState = {
   notifications: [],
   modalOpen: false,
+  loading: false,
 };
 
 const NotificationsContext = createContext<NotificationsContext>({
   ...initialState,
+  fetch: () => Promise.resolve(),
   setModalOpen: () => {},
   addNotifications: () => {},
   addFriendRequests: () => {},
@@ -46,26 +51,30 @@ interface NotificationsProviderProps {
 const NotificationsProvider: FC<NotificationsProviderProps> = ({
   children,
 }) => {
-  const { fetch, loading, remoteNotifications } = useFetchMyNotifications();
+  const client = useApolloClient();
   const [state, setState] = useState<NotificationsState>(initialState);
   const { player } = usePlayerContext();
 
-  useEffect(() => {
-    async function fetchRemoteNotifications() {
-      await fetch();
-      setState({
-        ...state,
-        notifications: [...state.notifications, ...remoteNotifications],
-      });
-    }
-
-    if (player) {
-      fetchRemoteNotifications();
-    }
-  }, [player]);
+  const fetch = async () => {
+    const {
+      data: { fetchMyNotifications },
+      loading,
+    } = await client.query({
+      query: FETCH_MY_NOTIFICATIONS,
+      variables: {
+        input: { id: player?.id },
+      },
+    });
+    setState({
+      ...state,
+      notifications: [...state.notifications, ...fetchMyNotifications],
+      loading,
+    });
+  };
 
   const value: NotificationsContext = {
     ...state,
+    fetch,
     addNotifications: (newNotifications: Array<Notification>) => {
       setState({
         ...state,

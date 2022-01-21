@@ -3,6 +3,7 @@ import { MantineProvider } from "@mantine/core";
 import { UserProvider } from "@auth0/nextjs-auth0";
 import { NotificationsProvider } from "@mantine/notifications";
 import { ApolloProvider } from "@apollo/client";
+import { CookiesProvider } from "react-cookie";
 
 import { client as apolloClient } from "../lib";
 import { ContextProvider } from "../context";
@@ -13,11 +14,13 @@ export const AppProviders: FC = ({ children }) => {
     <UserProvider>
       <ApolloProvider client={apolloClient}>
         <ContextProvider>
-          <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
-            <NotificationsProvider position="top-right" zIndex={2077}>
-              {children}
-            </NotificationsProvider>
-          </MantineProvider>
+          <CookiesProvider>
+            <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
+              <NotificationsProvider position="top-right" zIndex={2077}>
+                {children}
+              </NotificationsProvider>
+            </MantineProvider>
+          </CookiesProvider>
         </ContextProvider>
       </ApolloProvider>
     </UserProvider>
