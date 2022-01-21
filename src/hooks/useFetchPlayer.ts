@@ -3,7 +3,7 @@ import { useApolloClient } from "@apollo/client";
 import { useUser } from "@auth0/nextjs-auth0";
 
 import { FETCH_PLAYER_BY_SUB } from "../gql";
-import { usePlayerContext } from "../context";
+import { useNotificationsContext, usePlayerContext } from "../context";
 import { Player } from "../types";
 
 export const useFetchPlayer = () => {
@@ -11,6 +11,7 @@ export const useFetchPlayer = () => {
   const { user, error, isLoading } = useUser();
   const [loading, setLoading] = useState<boolean>(true);
   const { player, setPlayer } = usePlayerContext();
+  const { addFriendRequests } = useNotificationsContext();
 
   useEffect(() => {
     async function fetchPlayer() {
@@ -23,6 +24,7 @@ export const useFetchPlayer = () => {
       });
 
       setPlayer(fetchPlayerByEmail);
+      addFriendRequests(fetchPlayerByEmail.friendRequests);
       setLoading(loading);
     }
 

@@ -19,6 +19,7 @@ interface NotificationsState {
 
 type NotificationsContext = NotificationsState & {
   addNotifications: (notification: Array<Notification>) => void;
+  addFriendRequests: (friendRequests: Array<Player>) => void;
   removeNotification: (id: string) => void;
   setModalOpen: (val: boolean) => void;
   reset: () => void;
@@ -33,6 +34,7 @@ const NotificationsContext = createContext<NotificationsContext>({
   ...initialState,
   setModalOpen: () => {},
   addNotifications: () => {},
+  addFriendRequests: () => {},
   removeNotification: () => {},
   reset: () => {},
 });
@@ -51,6 +53,10 @@ const NotificationsProvider: FC<NotificationsProviderProps> = ({
   useEffect(() => {
     async function fetchRemoteNotifications() {
       await fetch();
+      setState({
+        ...state,
+        notifications: [...state.notifications, ...remoteNotifications],
+      });
     }
 
     if (player) {
@@ -58,60 +64,35 @@ const NotificationsProvider: FC<NotificationsProviderProps> = ({
     }
   }, [player]);
 
-  useEffect(() => {
-    if (player && player.friendRequests.length) {
-      const { friendRequests } = player;
-      let notifications: Array<Notification> = [];
-
-      if (loading) return;
+  const value: NotificationsContext = {
+    ...state,
+    addNotifications: (newNotifications: Array<Notification>) => {
+      setState({
+        ...state,
+        notifications: [...state.notifications, ...newNotifications],
+      });
+    },
+    addFriendRequests: (friendRequests: Array<Player>) => {
+      let _fr: Array<Notification> = [];
 
       friendRequests.forEach((fRequest?: Player) => {
-        if (
-          fRequest &&
-          state.notifications
-            .filter((notif) => notif.notificationType === "FRIEND_REQUEST")
-            .every((notifi) => notifi.from.id !== fRequest.id)
-        ) {
-          notifications.push({
-            id: uuidv4(),
-            context: "Player",
-            done: false,
-            from: fRequest,
-            to: player,
-            notificationType: "FRIEND_REQUEST",
-          });
-        }
-      });
+        const newNotification: Notification = {
+          id: uuidv4(),
+          context: "Player",
+          done: false,
+          from: fRequest as Player,
+          to: player as Player,
+          notificationType: "FRIEND_REQUEST",
+        };
 
-      const _notifications = [
-        ...state.notifications,
-        ...notifications,
-        ...remoteNotifications,
-      ];
+        _fr.push(newNotification);
+      });
 
       setState({
         ...state,
-        notifications: [...new Set(_notifications)],
+        notifications: [...state.notifications, ..._fr],
       });
-    }
-  }, [player, loading, remoteNotifications]);
-
-  const addNotifications = (newNotifications: Array<Notification>) => {
-    const n = [...state.notifications, ...newNotifications];
-
-    console.log("-----------------addNotification-----------------");
-    console.log(state.notifications);
-    console.log(n);
-
-    setState({
-      ...state,
-      notifications: n,
-    });
-  };
-
-  const value: NotificationsContext = {
-    ...state,
-    addNotifications,
+    },
     removeNotification: (id) => {
       setState({
         ...state,
